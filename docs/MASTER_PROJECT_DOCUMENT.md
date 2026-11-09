@@ -4855,6 +4855,365 @@ The system must collect only necessary information, restrict access appropriatel
 
 ## 18. Testing Strategy
 
+### 18.1 General Testing Principles
+
+The platform must follow a structured testing strategy throughout development.
+
+Testing must verify:
+
+- Functional correctness.
+- Business rule enforcement.
+- Database integrity.
+- Backend reliability.
+- Security.
+- User experience.
+- Mobile responsiveness.
+- Performance.
+- External integrations.
+
+Critical business rules must be tested before production deployment.
+
+### 18.2 Unit Testing
+
+Unit tests must verify individual functions and isolated application logic.
+
+Areas to test:
+
+- Price calculations.
+- Payment deadline calculations.
+- Booking notice calculations.
+- Package session counts.
+- Remaining session calculations.
+- Timezone conversions.
+- Reservation status transitions.
+- Input validation.
+- Notification scheduling calculations.
+
+### 18.3 Integration Testing
+
+Integration tests must verify communication between system components.
+
+Areas to test:
+
+- Next.js and Supabase.
+- Authentication and authorization.
+- Database operations.
+- Supabase Storage.
+- Edge Functions.
+- Payment proof submissions.
+- Notification processing.
+- OTP recovery.
+- Scheduled jobs.
+
+### 18.4 Individual Reservation Testing
+
+Test the complete individual reservation lifecycle.
+
+Scenarios:
+
+- Successful reservation creation.
+- Minimum 3-day booking notice.
+- Rejection of dates inside the minimum notice period.
+- One active individual reservation per client.
+- Temporary slot allocation.
+- Payment deadline of exactly 24 hours.
+- Payment proof submission.
+- Manual payment confirmation.
+- Manual payment rejection.
+- Automatic expiration.
+- Slot release after expiration.
+- Prevention of duplicate reservations.
+- Prevention of double booking.
+
+### 18.5 Package Reservation Testing
+
+Test every package configuration.
+
+Scenarios:
+
+- Essential package with four sessions.
+- Transformation package with eight sessions.
+- Evolution package with twelve sessions.
+- All sessions selected in one operation.
+- Minimum 7-day scheduling notice.
+- Maximum 1-month scheduling window.
+- Atomic allocation of every session.
+- Complete rollback if one session is unavailable.
+- Payment deadline of exactly 96 hours.
+- Manual payment confirmation.
+- Manual payment rejection.
+- Atomic expiration of the entire package.
+- Release of every session slot after expiration.
+- Correct remaining session count.
+- Independent child session completion.
+- Independent child session rescheduling.
+
+### 18.6 Payment Testing
+
+Test:
+
+- Correct payment amounts.
+- Historical price preservation.
+- MZN currency handling.
+- Payment proof uploads.
+- Invalid file rejection.
+- Unauthorized proof access.
+- Manual confirmation.
+- Manual rejection.
+- Payment deadline enforcement.
+- Payment confirmation versus expiration race conditions.
+- Duplicate payment operations.
+- Future payment provider integration.
+
+### 18.7 Availability Testing
+
+Test:
+
+- Regular weekly schedules.
+- Multiple working periods.
+- Online availability.
+- In-person availability.
+- Temporary schedule changes.
+- Full-day blocks.
+- Multi-day blocks.
+- Specific time blocks.
+- Breaks and holidays.
+- Existing reservation conflicts.
+- Overlapping sessions.
+- Timezone accuracy.
+- Concurrent booking attempts.
+
+### 18.8 Rescheduling and Cancellation Testing
+
+Test:
+
+- Rescheduling before the 24-hour restriction.
+- Rejection of rescheduling inside 24 hours.
+- Cancellation before the 24-hour restriction.
+- Rejection of cancellation inside 24 hours.
+- New slot availability validation.
+- Atomic replacement of the original slot.
+- Preservation of the original session if the new slot is unavailable.
+- Package child session independence.
+- Correct reminder replacement.
+- Correct client and administrator notifications.
+
+### 18.9 Notification Testing
+
+Test:
+
+- 24-hour reminders.
+- 1-hour reminders.
+- Exact session start reminders.
+- Client notification delivery.
+- Farah notification delivery.
+- Individual session reminders.
+- Every package child session reminder.
+- Cancellation of outdated reminders.
+- Rescheduling reminder replacement.
+- Duplicate prevention.
+- Failed delivery logging.
+- Retry behavior.
+- Scheduler execution while the website is closed.
+
+No 30-minute reminder must be generated.
+
+### 18.10 OTP Recovery Testing
+
+Test:
+
+- Correct phone number.
+- Incorrect phone number.
+- Valid OTP.
+- Invalid OTP.
+- Expired OTP.
+- Reused OTP.
+- Attempt limits.
+- Resend restrictions.
+- Previous code invalidation.
+- Rate limiting.
+- Reservation ownership.
+- Prevention of phone enumeration.
+
+### 18.11 Authentication and Authorization Testing
+
+Test:
+
+- Administrator login.
+- Unauthorized administrator access.
+- Public user restrictions.
+- Client reservation ownership.
+- RLS policies.
+- Private Storage access.
+- Unauthorized database operations.
+- Session expiration.
+- Secure logout.
+- Protection of secret credentials.
+
+### 18.12 Administrative Dashboard Testing
+
+Test:
+
+- Dashboard overview.
+- Reservation management.
+- Payment management.
+- Calendar accuracy.
+- Availability management.
+- Package management.
+- Client management.
+- Review moderation.
+- Institutional requests.
+- Notification monitoring.
+- Audit history.
+- Mobile usability.
+
+### 18.13 Frontend Testing
+
+Test:
+
+- Navigation.
+- Responsive layouts.
+- Forms.
+- Calendar interactions.
+- Package selection.
+- Loading states.
+- Error states.
+- Success states.
+- Accessibility.
+- Touch interactions.
+- Mobile browser compatibility.
+
+### 18.14 Security Testing
+
+Test protection against:
+
+- SQL injection.
+- Cross-site scripting.
+- Cross-site request forgery where applicable.
+- Brute-force attempts.
+- Unauthorized object access.
+- Privilege escalation.
+- Malicious file uploads.
+- OTP abuse.
+- Duplicate requests.
+- Secret leakage.
+- Unauthorized administrative operations.
+
+### 18.15 Performance Testing
+
+Test:
+
+- Initial page loading.
+- Image optimization.
+- Database query performance.
+- Calendar loading.
+- Reservation processing.
+- Concurrent requests.
+- Notification processing.
+- Mobile performance.
+
+### 18.16 End-to-End Testing
+
+Complete real-world workflows must be tested from beginning to end.
+
+Example individual workflow:
+
+1. Client opens the website.
+2. Selects an individual session.
+3. Selects modality.
+4. Enters personal information.
+5. Selects an available slot.
+6. Creates a provisional reservation.
+7. Receives payment instructions.
+8. Submits payment proof.
+9. Farah confirms payment.
+10. Client receives confirmation.
+11. Both receive the three scheduled reminders.
+12. Session is completed.
+13. Client becomes eligible to submit a review.
+
+Example package workflow:
+
+1. Client selects a package.
+2. Selects all required sessions.
+3. Backend validates every slot.
+4. All sessions are allocated atomically.
+5. Client receives the 96-hour payment deadline.
+6. Client submits payment proof.
+7. Farah confirms payment.
+8. Every package session becomes confirmed.
+9. Each session receives its own three-reminder schedule.
+10. Sessions are completed or rescheduled independently.
+11. Remaining session count is updated correctly.
+
+### 18.17 Test Environments
+
+The project must maintain separate environments where appropriate:
+
+- Local development.
+- Development Supabase project.
+- Preview deployments.
+- Production environment.
+
+Production data must not be used casually for development testing.
+
+Test credentials and sample information must not expose real client data.
+
+### 18.18 Test Data
+
+Test data must include:
+
+- Individual reservations.
+- Four-session packages.
+- Eight-session packages.
+- Twelve-session packages.
+- Pending payments.
+- Confirmed payments.
+- Rejected payments.
+- Expired reservations.
+- Completed sessions.
+- Rescheduled sessions.
+- Availability blocks.
+- Failed notifications.
+
+Test records must be clearly identifiable and removable without affecting real data.
+
+### 18.19 Regression Testing
+
+Whenever a change is made to an important feature, previously working functionality must be tested again.
+
+Special attention must be given to changes affecting:
+
+- Reservations.
+- Payments.
+- Packages.
+- Availability.
+- Notifications.
+- Authentication.
+- Database constraints.
+- RLS policies.
+
+### 18.20 Production Readiness
+
+The platform must not be released until:
+
+- Critical business workflows pass.
+- Database integrity tests pass.
+- Security tests pass.
+- Payment workflows pass.
+- Package atomicity tests pass.
+- Reminder scheduling tests pass.
+- Mobile usability tests pass.
+- Backup and recovery procedures are reviewed.
+- Production environment variables are verified.
+- No critical unresolved defects remain.
+
+### 18.21 Implementation Rule
+
+Testing must be continuous throughout development.
+
+Critical booking, payment, security and notification rules must never be considered complete without corresponding tests.
+
 ## 19. Deployment
 
 ## 20. Pending Decisions
