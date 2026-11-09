@@ -2540,6 +2540,592 @@ This review must include:
 
 ## 12. Database Architecture
 
+### 12.1 General Architecture
+
+The platform will use PostgreSQL through Supabase as its primary database.
+
+The database must support:
+
+- Client information.
+- Individual reservations.
+- Package reservations.
+- Individual scheduled sessions.
+- Payment records.
+- Payment proofs.
+- Availability management.
+- Notifications and reminders.
+- SMS OTP reservation recovery.
+- Client reviews.
+- Institutional requests.
+- Administrative permissions.
+- Audit history.
+
+The database must preserve data integrity, enforce business rules and support secure concurrent operations.
+
+### 12.2 Database Design Principles
+
+The database must follow these principles:
+
+- Relational database architecture.
+- Clear separation of business entities.
+- Primary keys and foreign keys.
+- Appropriate unique constraints.
+- Appropriate indexes.
+- Database-level validation.
+- Transactional operations for critical processes.
+- Row Level Security (RLS).
+- Least-privilege access.
+- Historical data preservation.
+
+Critical business rules must not depend exclusively on frontend validation.
+
+### 12.3 Core Database Tables
+
+The proposed database must include the following tables.
+
+#### A. clients
+
+Stores client information.
+
+Suggested fields:
+
+- id
+- full_name
+- phone_number
+- normalized_phone_number
+- email
+- created_at
+- updated_at
+
+Requirements:
+
+- Each client must have a unique normalized phone number.
+- Phone numbers must be stored in a consistent international format.
+- Email must be optional.
+- A client must be associated with their reservations.
+- Client information must not be publicly accessible.
+
+#### B. admin_users
+
+Stores the administrative authorization records.
+
+Suggested fields:
+
+- id
+- auth_user_id
+- role
+- is_active
+- created_at
+- updated_at
+
+Requirements:
+
+- Administrative authentication must use Supabase Auth.
+- The auth_user_id must reference the corresponding authenticated user.
+- Only explicitly authorized users may have administrative permissions.
+- Public registration must never grant administrator access.
+
+#### C. offers
+
+Stores the services and packages available for purchase.
+
+Suggested fields:
+
+- id
+- name
+- description
+- offer_type
+- session_count
+- session_duration_minutes
+- price
+- currency
+- validity_days
+- is_active
+- created_at
+- updated_at
+
+Requirements:
+
+- Must support individual sessions and packages.
+- Must support the Essential, Transformation and Evolution packages.
+- Package session counts must be configurable.
+- Prices must use an exact numeric representation.
+- Currency must be MZN.
+- Package validity must be configurable.
+- Historical reservations must preserve the price and package details applicable when purchased.
+
+#### D. reservations
+
+Stores the main reservation operation.
+
+This is the parent table for both individual and package reservations.
+
+Suggested fields:
+
+- id
+- client_id
+- offer_id
+- reservation_type
+- status
+- modality
+- total_amount
+- currency
+- payment_deadline
+- confirmed_at
+- expires_at
+- cancelled_at
+- created_at
+- updated_at
+
+Requirements:
+
+- An individual reservation represents one individual session.
+- A package reservation represents one package purchase containing multiple sessions.
+- Each reservation must belong to one client.
+- Each reservation must preserve the applicable offer and price information.
+- Package reservations must act as the parent of their scheduled sessions.
+- Reservation expiration must be processed atomically.
+
+The reservation must preserve historical commercial information even if the original offer is later modified.
+
+#### E. reservation_sessions
+
+Stores the individual scheduled sessions belonging to reservations.
+
+Suggested fields:
+
+- id
+- reservation_id
+- scheduled_start_at
+- scheduled_end_at
+- modality
+- status
+- completed_at
+- created_at
+- updated_at
+
+Requirements:
+
+- Every scheduled session must belong to one parent reservation.
+- Individual reservations must normally contain one scheduled session.
+- Essential reservations must contain four sessions.
+- Transformation reservations must contain eight sessions.
+- Evolution reservations must contain twelve sessions.
+- Each session must have its own date, time, modality and status.
+- Every package session must remain linked to its parent reservation.
+- Each session must be independently reschedulable.
+- Session completion must not automatically complete the entire package.
+
+The database must enforce the required session count for each package before the reservation can become confirmed.
+
+### 12.4 Payment Tables
+
+#### A. payments
+
+Stores the payment record associated with a reservation.
+
+Suggested fields:
+
+- id
+- reservation_id
+- payment_method
+- expected_amount
+- currency
+- status
+- confirmed_at
+- reviewed_by
+- rejection_reason
+- created_at
+- updated_at
+
+Requirements:
+
+- Every reservation must have an associated payment record.
+- Payment amounts must be preserved historically.
+- Payment confirmation must be performed by an authorized administrator for M-Pesa.
+- Payment status changes must be validated by the backend.
+- Payment history must not be silently overwritten.
+
+#### B. payment_proofs
+
+Stores references to submitted payment proof files.
+
+Suggested fields:
+
+- id
+- payment_id
+- storage_path
+- original_filename
+- mime_type
+- file_size
+- submitted_at
+- review_status
+- created_at
+
+Requirements:
+
+- Payment proof files must be stored in a private Supabase Storage bucket.
+- The database must store the file reference, not the file itself.
+- Each proof must belong to a payment.
+- Access must be restricted to the associated client and authorized administrators.
+- Previous proof submissions must remain traceable.
+- Uploading a proof must never automatically confirm payment.
+
+### 12.5 Availability Tables
+
+#### A. availability_rules
+
+Stores Farah's regular working schedule.
+
+Suggested fields:
+
+- id
+- weekday
+- start_time
+- end_time
+- modality
+- is_active
+- valid_from
+- valid_until
+- created_at
+- updated_at
+
+Requirements:
+
+- Must support different working hours on different weekdays.
+- Must support multiple working periods on the same day.
+- Must support online and in-person availability.
+- Must allow temporary schedule configurations.
+- Must support future changes without destroying historical reservations.
+
+#### B. availability_blocks
+
+Stores periods when Farah is unavailable.
+
+Suggested fields:
+
+- id
+- title
+- block_type
+- start_at
+- end_at
+- reason
+- created_by
+- created_at
+- updated_at
+
+Requirements:
+
+- Must support full-day blocks.
+- Must support multiple-day blocks.
+- Must support specific time blocks.
+- Must support breaks, holidays and vacations.
+- Must prevent new reservations during blocked periods.
+- Must detect conflicts with existing reservations before a block is created.
+
+### 12.6 Notification Tables
+
+#### A. notifications
+
+Stores logical notifications and scheduled reminders.
+
+Suggested fields:
+
+- id
+- recipient_type
+- recipient_id
+- reservation_id
+- reservation_session_id
+- notification_type
+- channel
+- scheduled_at
+- status
+- created_at
+- updated_at
+
+Requirements:
+
+- Must support notifications for clients and Farah.
+- Must support individual session reminders.
+- Must support package session reminders.
+- Must support operational notifications.
+- Must allow cancellation of outdated reminders.
+- Must prevent duplicate logical notifications.
+
+#### B. notification_attempts
+
+Stores the delivery history of notifications.
+
+Suggested fields:
+
+- id
+- notification_id
+- provider
+- provider_message_id
+- attempt_number
+- attempted_at
+- delivery_status
+- error_message
+- created_at
+
+Requirements:
+
+- Every delivery attempt must be traceable.
+- Failed attempts must be recorded.
+- Retry operations must not create duplicate logical notifications.
+- Delivery failures must not change reservation or payment status.
+
+### 12.7 Reservation Recovery Table
+
+#### booking_recovery_codes
+
+Stores hashed SMS OTP recovery codes.
+
+Suggested fields:
+
+- id
+- reservation_id
+- phone_number
+- code_hash
+- expires_at
+- attempts
+- max_attempts
+- consumed_at
+- created_at
+
+Requirements:
+
+- OTP codes must never be stored in plaintext.
+- Codes must expire.
+- Verification attempts must be limited.
+- Resending must invalidate previous codes.
+- Each code must be single-use.
+- Recovery must be associated with the correct reservation and verified phone number.
+- Additional rate-limiting mechanisms must protect against abuse.
+
+### 12.8 Client Reviews Table
+
+#### client_reviews
+
+Stores reviews submitted by eligible clients.
+
+Suggested fields:
+
+- id
+- client_id
+- reservation_session_id
+- rating
+- review_text
+- moderation_status
+- is_public
+- consent_to_publish
+- created_at
+- updated_at
+
+Requirements:
+
+- Reviews must be associated with a completed session.
+- Only eligible clients may submit reviews.
+- Reviews must be moderated before publication.
+- Private reviews must not appear publicly.
+- Publication must respect the client's consent.
+- Duplicate reviews for the same session must be prevented.
+
+### 12.9 Institutional Requests Table
+
+#### institutional_requests
+
+Stores requests from organizations and institutions.
+
+Suggested fields:
+
+- id
+- organization_name
+- contact_name
+- contact_phone
+- contact_email
+- event_type
+- preferred_date
+- message
+- status
+- created_at
+- updated_at
+
+Requirements:
+
+- Institutional requests must be stored securely.
+- Farah must be able to review and manage requests.
+- New submissions must generate operational notifications.
+- Public users must not access other submitted requests.
+
+### 12.10 Audit Logs Table
+
+#### audit_logs
+
+Stores important administrative and security actions.
+
+Suggested fields:
+
+- id
+- actor_user_id
+- action
+- entity_type
+- entity_id
+- details
+- created_at
+
+Requirements:
+
+- Important administrative operations must be recorded.
+- Payment decisions must be traceable.
+- Reservation modifications must be traceable.
+- Availability changes must be traceable.
+- Permission changes must be traceable.
+- Ordinary clients must never modify audit records.
+- Audit history must be protected against unauthorized modification.
+
+### 12.11 Table Relationships
+
+The database must implement the following relationships:
+
+- One client can have multiple reservations.
+- One offer can be referenced by multiple reservations.
+- One reservation belongs to one client.
+- One reservation can have one or multiple reservation_sessions.
+- One reservation must have an associated payment.
+- One payment can have multiple payment_proofs.
+- One reservation can have multiple notifications.
+- One reservation_session can have multiple notifications.
+- One notification can have multiple notification_attempts.
+- One client can have multiple reviews.
+- Each review must reference an eligible completed reservation_session.
+- One administrator can perform multiple audited actions.
+- One administrator can create multiple availability blocks.
+
+### 12.12 Reservation and Session Integrity
+
+The database must preserve the distinction between parent reservations and child sessions.
+
+Individual sessions:
+- One parent reservation.
+- Normally one child session.
+
+Packages:
+- One parent reservation.
+- Four, eight or twelve child sessions according to the selected package.
+
+The parent reservation must control the overall package payment and expiration lifecycle.
+
+Each child session must maintain its own scheduling, completion, rescheduling and reminder information.
+
+### 12.13 Concurrency and Double-Booking Protection
+
+The database must prevent two active reservations from occupying overlapping time intervals.
+
+The implementation must consider:
+
+- Confirmed sessions.
+- Temporarily held sessions.
+- Simultaneous booking requests.
+- Simultaneous rescheduling requests.
+- Package reservations containing multiple sessions.
+
+Critical booking operations must use database transactions and appropriate database-level concurrency protection.
+
+A package reservation must allocate all its required time slots atomically.
+
+### 12.14 Database Indexes and Constraints
+
+The final database design must include appropriate indexes and constraints.
+
+These must cover:
+
+- Client phone number uniqueness.
+- Reservation ownership.
+- Reservation status.
+- Payment status.
+- Payment deadlines.
+- Session date and time.
+- Parent-child reservation relationships.
+- Notification scheduling.
+- OTP expiration and verification.
+- Administrative authorization.
+- Prevention of overlapping active sessions.
+- Prevention of duplicate reminders.
+- Required package session counts.
+
+The exact indexes, unique constraints and exclusion constraints must be designed before implementation.
+
+### 12.15 Database Security
+
+Row Level Security must be enabled for all sensitive tables.
+
+The database must enforce:
+
+- Authorized administrative access.
+- Client ownership restrictions.
+- Private payment proof access.
+- Protected recovery information.
+- Restricted audit log access.
+- No public access to sensitive records.
+
+Administrative privileges must never be granted based only on frontend information.
+
+### 12.16 Database Migrations
+
+All database structure changes must be version-controlled.
+
+SQL migrations must be stored in the GitHub repository.
+
+Each migration must have a clear sequential name.
+
+Proposed migration sequence:
+
+- 001_extensions.sql
+- 002_custom_types.sql
+- 003_core_tables.sql
+- 004_reservation_tables.sql
+- 005_payment_tables.sql
+- 006_availability_tables.sql
+- 007_notification_tables.sql
+- 008_security_functions.sql
+- 009_rls_policies.sql
+- 010_database_permissions.sql
+- 011_indexes_and_constraints.sql
+
+The final migration order may be adjusted after reviewing foreign-key dependencies and implementation requirements.
+
+### 12.17 Database Testing
+
+Before production use, the database must be tested for:
+
+- Correct table relationships.
+- Foreign-key integrity.
+- Unique constraints.
+- RLS protection.
+- Unauthorized access.
+- Double-booking prevention.
+- Atomic package allocation.
+- Atomic package expiration.
+- Correct payment deadlines.
+- Correct session completion.
+- Correct remaining package session counts.
+- Correct reminder relationships.
+- Correct reservation recovery.
+
+### 12.18 Important Implementation Rule
+
+No production SQL must be executed until:
+
+1. The complete database architecture has been reviewed.
+2. All table relationships have been validated.
+3. Reservation and package logic has been checked.
+4. Security and RLS policies have been designed.
+5. Concurrency protection has been planned.
+6. Migration dependencies have been reviewed.
+
+The final database schema must be consistent with every business rule defined in this master document.
+
 ## 13. Backend Architecture
 
 ## 14. Frontend Architecture
