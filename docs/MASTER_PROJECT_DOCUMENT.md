@@ -194,6 +194,289 @@ The following details require confirmation before publication:
 
 ## 3. Website Architecture
 
+### 3.1 General Structure
+
+The platform will consist of two main environments:
+
+1. Public Website — accessible to visitors and clients.
+2. Private Admin Dashboard — accessible only to authorized administrators.
+
+The public website and admin dashboard must use the same backend and database while maintaining separate access permissions.
+
+### 3.2 Public Website Pages
+
+The public website must include the following pages or sections:
+
+#### A. Home
+
+Purpose:
+Introduce Farah Dibha Neurocoach and communicate the brand's identity.
+
+Content:
+- Hero section with the official brand identity.
+- Short introduction to Farah.
+- Main services overview.
+- Individual session and package highlights.
+- Selected testimonials.
+- Clear booking call to action.
+
+#### B. About Farah
+
+Purpose:
+Present Farah's professional background and approach.
+
+Content:
+- Professional introduction.
+- Biography.
+- Verified qualifications and certifications.
+- Coaching philosophy and approach.
+- Professional photograph.
+
+All professional information must be approved by Farah before publication.
+
+#### C. Services
+
+Purpose:
+Present the services offered.
+
+Content:
+- Service descriptions.
+- Session format.
+- Online and in-person availability.
+- Session duration.
+- Relevant booking actions.
+
+The final service list and descriptions must be confirmed before publication.
+
+#### D. Individual Sessions
+
+Purpose:
+Allow clients to understand and book individual sessions.
+
+Content:
+- Session information.
+- Price: 1,850 MZN.
+- Duration: 60 minutes.
+- Online or in-person options.
+- Booking calendar and time selection.
+
+#### E. Packages
+
+Purpose:
+Present the available multi-session packages.
+
+Content:
+- Essential: 4 sessions — 6,800 MZN.
+- Transformation: 8 sessions — 12,950 MZN.
+- Evolution: 12 sessions — 18,500 MZN.
+- Package descriptions.
+- Package validity information.
+- Package booking action.
+
+The package booking process must allow clients to select all required session dates and times before submitting the reservation.
+
+#### F. Booking
+
+Purpose:
+Provide the complete reservation experience.
+
+The booking process must support two distinct flows:
+
+1. Individual session booking.
+2. Package booking.
+
+The system must display available dates and times according to the applicable booking rules.
+
+The booking process must include:
+- Client information.
+- Phone number.
+- Optional email address.
+- Session type and modality.
+- Date and time selection.
+- Reservation summary.
+- Payment instructions.
+- Payment proof submission.
+
+The backend must validate availability and all booking restrictions before confirming or temporarily holding any selected time.
+
+#### G. Testimonials and Reviews
+
+Purpose:
+Display approved client feedback.
+
+Content:
+- Approved written reviews.
+- Client ratings, if enabled.
+- Approved photographs or videos, when consent has been obtained.
+
+Only eligible reviews that have been approved for publication may appear publicly.
+
+#### H. Talks and Workshops
+
+Purpose:
+Present Farah's talks, workshops and educational activities.
+
+Content:
+- Available talks and workshops.
+- Descriptions.
+- Photographs or videos, when available.
+- Inquiry or participation request action.
+
+#### I. Institutional and Partnership Requests
+
+Purpose:
+Allow companies, institutions and organizations to contact Farah.
+
+The request form must collect:
+- Organization name.
+- Event or collaboration type.
+- Preferred date.
+- Contact information.
+- Message.
+
+Each submission must be stored and generate an administrative notification.
+
+#### J. Contact
+
+Purpose:
+Provide direct contact channels.
+
+Content:
+- WhatsApp contact.
+- Email address.
+- Instagram profile.
+- Other approved contact information.
+
+### 3.3 Client Reservation Access
+
+Clients must have a way to recover and access their reservations without requiring a traditional password-based account.
+
+The recovery process must use:
+- Registered phone number.
+- SMS one-time password (OTP).
+- Verification before displaying reservation information.
+
+The system must only allow access to reservations associated with the verified phone number.
+
+### 3.4 Private Admin Dashboard
+
+The administration environment must be private and accessible only to authorized administrators.
+
+It must include the following main areas:
+
+#### A. Dashboard Overview
+- Upcoming sessions.
+- Pending reservations.
+- Pending payment reviews.
+- Recent activity.
+- Important notifications.
+
+#### B. Reservations
+- View individual reservations.
+- View package reservations.
+- View all sessions belonging to each package.
+- Confirm reservation status.
+- Review reservation history.
+- Manage cancellations and changes.
+
+#### C. Payments
+- View submitted payment proofs.
+- Confirm payments manually.
+- Reject payments with a recorded reason.
+- View payment history.
+
+#### D. Calendar and Availability
+- View scheduled sessions.
+- Configure working hours.
+- Block specific dates and times.
+- Block entire days.
+- Manage holidays, breaks and vacations.
+
+#### E. Services and Packages
+- Manage service descriptions.
+- Update individual session prices.
+- Manage package prices.
+- Configure package validity periods.
+- Enable or disable offers.
+
+#### F. Clients
+- View client information.
+- View reservation history.
+- View package sessions and remaining sessions.
+- Access relevant client records according to permissions.
+
+#### G. Reviews
+- View submitted reviews.
+- Approve or reject reviews.
+- Control which reviews are publicly displayed.
+
+#### H. Institutional Requests
+- View submitted requests.
+- Update request status.
+- Review organization and event information.
+
+#### I. Notifications
+- View operational notifications.
+- Review notification delivery status.
+- Identify failed notifications.
+
+#### J. Settings
+- Manage administrative settings.
+- Configure contact information.
+- Configure business hours.
+- Manage other permitted platform settings.
+
+### 3.5 Navigation
+
+The public website must have clear and simple navigation.
+
+Main navigation destinations:
+- Home.
+- About.
+- Services.
+- Packages.
+- Talks and Workshops.
+- Contact.
+
+The booking action must remain easy to find throughout the website.
+
+Mobile navigation must be optimized for touch interaction and smaller screens.
+
+The admin dashboard must have its own navigation, separate from the public website.
+
+### 3.6 Responsive Design
+
+The website must adapt to:
+- Mobile phones.
+- Tablets.
+- Desktop computers.
+
+Mobile experience must be treated as a priority.
+
+All forms, calendars, booking controls and administrative functions must remain usable on mobile devices.
+
+### 3.7 Language
+
+The initial website language will be Portuguese.
+
+The architecture should allow additional languages to be introduced in the future without requiring a complete rebuild.
+
+### 3.8 Architecture Principles
+
+The platform must follow these principles:
+
+- Separate public and administrative environments.
+- Reusable frontend components.
+- Clear separation between presentation and business logic.
+- Secure communication with Supabase.
+- Server-side validation of critical operations.
+- Responsive design.
+- Accessible forms and navigation.
+- Consistent user experience.
+- No sensitive administrative information exposed publicly.
+
+The booking and payment rules must be enforced by the backend, not only by frontend interface restrictions.
+
 ## 4. User Roles and Permissions
 
 ## 5. Booking System
