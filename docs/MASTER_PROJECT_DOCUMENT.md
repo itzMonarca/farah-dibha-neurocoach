@@ -3372,6 +3372,16 @@ The operation must:
 
 The entire operation must either succeed or fail without leaving incomplete records or occupied slots.
 
+Individual reservation eligibility and integrity:
+
+- The one-active-individual-reservation restriction must be enforced using the client's verified phone number.
+- The same verified phone number must not have more than one active individual reservation at any time.
+- A client may create another individual reservation only after the previous individual session has been marked as completed.
+- Cancelled and expired individual reservations must not prevent future bookings.
+- The phone number eligibility check must be performed server-side inside the reservation creation transaction.
+- Concurrent booking requests using the same verified phone number must not bypass this restriction.
+- The 72-hour minimum booking notice must be calculated using the trusted server-side time.
+
 #### B. Package Reservation
 
 The operation must:
