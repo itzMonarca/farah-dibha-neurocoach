@@ -5216,4 +5216,294 @@ Critical booking, payment, security and notification rules must never be conside
 
 ## 19. Deployment
 
+### 19.1 Deployment Architecture
+
+The production application will be deployed using Vercel.
+
+The source code will be maintained in GitHub.
+
+Supabase will provide the production database, authentication, storage and backend services.
+
+The deployment architecture must support:
+
+- GitHub version control.
+- Automated Vercel deployments.
+- Preview deployments.
+- Production deployments.
+- Environment-specific configuration.
+- Secure production credentials.
+
+### 19.2 GitHub Repository
+
+The official repository is:
+
+farah-dibha-neurocoach
+
+Requirements:
+
+- All application source code must be version-controlled.
+- Project documentation must remain in the repository.
+- Database migrations must be version-controlled.
+- Changes must be committed regularly.
+- Production secrets must never be committed.
+- Important changes must have descriptive commit messages.
+
+### 19.3 Vercel Deployment
+
+Vercel will host the Next.js application.
+
+Requirements:
+
+- Connect the GitHub repository.
+- Configure the production branch.
+- Enable automatic deployments.
+- Enable preview deployments where appropriate.
+- Configure environment variables.
+- Monitor build results.
+- Review deployment logs.
+- Verify production builds before release.
+
+### 19.4 Environment Separation
+
+The project must distinguish between:
+
+#### Development
+
+Used for:
+
+- Building new features.
+- Testing backend operations.
+- Testing database migrations.
+- Testing authentication.
+- Using sample client information.
+- Finding and correcting bugs.
+
+#### Preview
+
+Used for:
+
+- Reviewing proposed changes.
+- Testing features before production.
+- Checking responsive layouts.
+- Validating integration behavior.
+
+#### Production
+
+Used for:
+
+- Real clients.
+- Real reservations.
+- Real payment records.
+- Official notifications.
+- Actual business operations.
+
+Development and production must not accidentally share sensitive credentials or databases.
+
+### 19.5 Supabase Environments
+
+The project must maintain a clear separation between development and production Supabase environments.
+
+Requirements:
+
+- Development database for testing.
+- Production database for real business data.
+- Separate environment credentials.
+- Version-controlled migrations.
+- Controlled schema changes.
+- Appropriate backups.
+- Restricted production access.
+
+The current development project is:
+
+farah-dibha-neurocoach-dev
+
+The production Supabase project must be created and configured before the official launch.
+
+### 19.6 Environment Variables
+
+Environment variables must be configured separately for each environment.
+
+Examples include:
+
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY or the appropriate publishable key.
+- SUPABASE_SERVICE_ROLE_KEY or the appropriate secret key.
+- SMS provider credentials.
+- Email provider credentials.
+- WhatsApp provider credentials.
+- Payment provider credentials.
+- Other private integration secrets.
+
+Only values specifically intended for public use may use the NEXT_PUBLIC_ prefix.
+
+Secret credentials must only be available to authorized server-side operations.
+
+### 19.7 Domain Configuration
+
+The official website must support a custom domain.
+
+Requirements:
+
+- Register or obtain the approved domain.
+- Configure DNS records.
+- Connect the domain to Vercel.
+- Enable HTTPS.
+- Verify domain ownership.
+- Configure the preferred canonical domain.
+- Test redirects and page availability.
+
+The final domain name is pending confirmation.
+
+### 19.8 Database Deployment
+
+Database changes must be deployed through version-controlled migrations.
+
+Requirements:
+
+- Review every migration.
+- Test migrations in development.
+- Verify foreign-key dependencies.
+- Verify RLS policies.
+- Verify database permissions.
+- Back up production data before risky changes.
+- Apply production migrations in a controlled manner.
+- Verify the resulting database structure.
+
+Production database changes must never be made casually through undocumented manual modifications.
+
+### 19.9 Edge Functions Deployment
+
+Supabase Edge Functions must be deployed through a controlled process.
+
+Requirements:
+
+- Version-controlled function source code.
+- Correct environment secrets.
+- Secure authorization.
+- Development testing.
+- Production verification.
+- Function logs and error monitoring.
+
+Scheduled jobs must also be configured and verified in the appropriate environment.
+
+### 19.10 Storage Deployment
+
+Storage buckets must be configured consistently across environments.
+
+Requirements:
+
+- Private payment-proofs bucket.
+- Appropriate access policies.
+- Secure file uploads.
+- Restricted file downloads.
+- File size and type validation.
+- Production storage permissions.
+
+Public assets must be separated from private client files.
+
+### 19.11 Production Security Checklist
+
+Before production deployment, verify:
+
+- Production credentials.
+- Supabase authentication settings.
+- Administrator access.
+- Database RLS.
+- Database permissions.
+- Storage policies.
+- HTTPS.
+- Secure cookies.
+- API authorization.
+- Environment variables.
+- Secret protection.
+- Rate limiting.
+- Backup configuration.
+
+### 19.12 Production Monitoring
+
+The platform must provide visibility into:
+
+- Deployment failures.
+- Application errors.
+- Database errors.
+- Edge Function failures.
+- Scheduled job failures.
+- Notification delivery failures.
+- Authentication problems.
+- Unexpected reservation behavior.
+
+Operational problems must be recorded and investigated.
+
+### 19.13 Backup and Recovery
+
+Before launch, define a backup and recovery strategy.
+
+Requirements:
+
+- Appropriate database backups.
+- Backup retention.
+- Recovery procedures.
+- Migration recovery planning.
+- Secure backup access.
+- Periodic recovery testing.
+
+The actual backup capabilities and costs must be verified against the selected Supabase plan.
+
+### 19.14 Rollback Strategy
+
+The project must define how to recover from failed deployments.
+
+Requirements:
+
+- Previous application deployments must remain identifiable.
+- Failed application releases must be reversible.
+- Database rollback procedures must be considered separately.
+- Destructive migrations require additional review.
+- Data integrity must be protected during recovery.
+
+Rolling back application code must not automatically be assumed to reverse database changes safely.
+
+### 19.15 Launch Checklist
+
+Before the official launch:
+
+- Public website pages must be complete.
+- Booking workflows must pass testing.
+- Package workflows must pass testing.
+- Payment verification must work.
+- Availability management must work.
+- Notifications must be verified.
+- OTP recovery must work.
+- Administrative dashboard must work.
+- Privacy policy and terms must be available.
+- Custom domain must work.
+- HTTPS must be active.
+- Production credentials must be verified.
+- Backup procedures must be reviewed.
+- No critical unresolved defects may remain.
+
+### 19.16 Production Hosting and Cost Review
+
+Before commercial launch, review:
+
+- Vercel hosting plan.
+- Supabase plan.
+- Database capacity.
+- Storage capacity.
+- Function usage.
+- Bandwidth.
+- Notification provider costs.
+- Domain renewal costs.
+- Backup capabilities.
+
+Free development resources must not be assumed to be suitable for commercial production.
+
+### 19.17 Implementation Rule
+
+All production deployments must follow a controlled and documented process.
+
+Development and production environments must remain separate.
+
+The official website must only be launched after the required functionality, security and operational checks have passed.
+
 ## 20. Pending Decisions
