@@ -3483,6 +3483,20 @@ It must never expire confirmed reservations.
 
 If expiration and payment confirmation occur simultaneously, database-level concurrency protection must ensure that only one valid outcome is committed.
 
+Additional expiration integrity rules:
+
+- Payment deadlines must be calculated from the exact creation timestamp of the provisional reservation using trusted server-side time.
+- Individual reservations must expire exactly 24 hours after creation if payment has not been manually confirmed.
+- Package reservations must expire exactly 96 hours after creation if payment has not been manually confirmed.
+- Uploading payment proof must never pause, extend or reset the payment deadline.
+- Payment confirmation must be completed before the deadline to prevent expiration.
+- Expired reservations must never be automatically reactivated.
+- The client and Farah must receive notifications when a reservation or package expires.
+- All package child session slots must be released in the same database transaction as parent package expiration.
+- All pending notifications and reminders associated with expired reservations must be cancelled.
+- Expiration events must be recorded in the audit log.
+- The expiration process must handle temporary failures and safely retry without duplicating notifications or releasing slots incorrectly.
+
 ### 13.8 Payment Processing
 
 The backend must support manual M-Pesa payment verification initially and allow future integration with Volet.
