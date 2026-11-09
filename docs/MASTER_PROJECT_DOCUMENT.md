@@ -3122,6 +3122,20 @@ Proposed migration sequence:
 
 The final migration order may be adjusted after reviewing foreign-key dependencies and implementation requirements.
 
+Migration integrity and deployment rules:
+
+- Every migration must have a unique sequential version and descriptive filename.
+- Applied migrations must never be silently edited or replaced.
+- Any change to an already applied migration must be delivered through a new migration.
+- The database must maintain a migration history recording which migrations have been successfully applied.
+- Each migration must be tested against the development database before production deployment.
+- Migration execution must be performed in the correct dependency order.
+- Failed migrations must not leave the database in a partially modified or inconsistent state.
+- Migrations must be safely repeatable where technically possible.
+- Destructive operations must require explicit review and must never silently delete important production data.
+- Database backups or an appropriate recovery strategy must exist before critical production migrations.
+- The GitHub migration files and the actual database migration history must remain synchronized.
+
 ### 12.17 Database Testing
 
 Before production use, the database must be tested for:
