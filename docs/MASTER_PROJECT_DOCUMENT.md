@@ -1107,6 +1107,315 @@ All critical rules must be enforced by the backend and database.
 
 ## 7. Packages and Multiple Sessions
 
+### 7.1 General Architecture
+
+Packages allow clients to purchase multiple sessions through one reservation operation.
+
+The platform must support three packages:
+
+Essential:
+- 4 sessions.
+- Price: 6,800 MZN.
+- Description: Estratégias práticas para começar a transformar.
+
+Transformation:
+- 8 sessions.
+- Price: 12,950 MZN.
+- Badge: Mais escolhido.
+- Description: Transformação profunda da mente, emoções e hábitos.
+
+Evolution:
+- 12 sessions.
+- Price: 18,500 MZN.
+- Description: Evolução contínua com foco em resultados reais e duradouros.
+
+Package prices apply regardless of whether sessions are online or in person.
+
+### 7.2 Package Booking Process
+
+The client must select the package and schedule all included sessions during the same booking process.
+
+The booking process must follow these steps:
+
+1. Client selects a package.
+2. The system displays the number of sessions included.
+3. Client selects the preferred modality.
+4. Client provides the required personal information.
+5. Client selects the date and time for the first session.
+6. Client selects the date and time for every remaining session.
+7. The system displays a complete booking summary.
+8. The backend validates every selected session.
+9. The backend checks availability for all selected time slots.
+10. All selected slots are temporarily held together.
+11. One parent package reservation is created.
+12. Individual scheduled sessions are created and linked to the parent reservation.
+13. Client receives the package payment instructions.
+
+The client must not be allowed to submit a package reservation with missing session dates or times.
+
+### 7.3 Package Session Scheduling Window
+
+Every session included in a package must be scheduled within the following limits:
+
+- Minimum advance booking: 7 days.
+- Maximum advance booking: 1 month.
+
+These limits apply individually to every selected session.
+
+The backend must validate the date of each session independently.
+
+A package must be rejected if even one selected session violates these scheduling limits.
+
+### 7.4 All-or-Nothing Slot Allocation
+
+All sessions included in a package must be temporarily reserved together.
+
+The system must use an atomic database operation or transaction to guarantee that:
+
+- Every selected time slot is available.
+- Every selected time slot is held successfully.
+- No other client can reserve those slots while the package is pending payment.
+
+If any selected time slot is unavailable or invalid:
+
+- The entire package reservation operation must fail.
+- No partial package reservation may remain.
+- No selected time slot may remain unnecessarily blocked.
+
+The backend must never create a package with only some of its required sessions successfully allocated.
+
+### 7.5 Parent Reservation and Child Sessions
+
+Each package purchase must create:
+
+- One parent reservation.
+- Multiple child reservation sessions.
+- One package payment record.
+
+The number of child sessions must match the package:
+
+- Essential: 4 child sessions.
+- Transformation: 8 child sessions.
+- Evolution: 12 child sessions.
+
+Every child session must be linked to its parent reservation.
+
+Each child session must have its own:
+
+- Scheduled date.
+- Start time.
+- End time.
+- Modality.
+- Session status.
+- Reminder schedule.
+- Rescheduling history.
+
+The parent reservation must maintain the overall package status.
+
+### 7.6 Package Payment Deadline
+
+The client has exactly 4 days (96 hours) after the provisional package reservation is created to complete payment.
+
+The client must submit payment proof.
+
+Farah must manually review and confirm the payment.
+
+Uploading payment proof does not confirm the package or extend its payment deadline.
+
+If Farah does not manually confirm the payment within 96 hours:
+
+- The parent package reservation must expire.
+- Every child session must become expired or otherwise unavailable for scheduling.
+- Every temporarily held time slot must be released.
+- All pending reminders associated with the package sessions must be cancelled.
+- The client must receive an expiration notification.
+- Farah must receive the relevant operational notification.
+
+Expiration must be processed as one atomic operation.
+
+### 7.7 Package Payment Confirmation
+
+When Farah manually confirms payment before the 96-hour deadline:
+
+- The parent reservation becomes confirmed.
+- Every child session becomes confirmed.
+- All selected time slots remain reserved.
+- The package becomes active.
+- The client receives confirmation.
+- Farah receives confirmation.
+- Reminder schedules are activated for every child session.
+
+The system must never confirm only part of a package.
+
+### 7.8 Payment Rejection
+
+If Farah rejects the submitted payment proof:
+
+- The rejection must be recorded.
+- The client must be informed.
+- The parent reservation remains subject to its original 96-hour payment deadline.
+- All selected slots remain temporarily held until confirmation, cancellation or expiration.
+
+A rejected payment must not automatically restart or extend the payment deadline.
+
+### 7.9 Package Session Management
+
+After package confirmation, each scheduled session must be manageable independently.
+
+Farah must be able to:
+
+- View all sessions belonging to a package.
+- View the parent package reservation.
+- View the client's package history.
+- Identify completed sessions.
+- Identify upcoming sessions.
+- Identify cancelled or rescheduled sessions.
+- Mark individual sessions as completed.
+
+Completing one child session must not complete the entire package.
+
+The parent package must remain active while it still has sessions that have not been completed or otherwise resolved.
+
+### 7.10 Remaining Session Counter
+
+The client and Farah must be able to see the number of sessions remaining in a package.
+
+The remaining session count must be calculated from the package's confirmed sessions and their completion status.
+
+A session must only count as consumed when it has been marked as completed.
+
+The system must not allow the remaining session count to become negative.
+
+### 7.11 Package Rescheduling
+
+Clients may reschedule an individual package session up to 24 hours before that session's scheduled start time.
+
+Rescheduling one package session must not automatically change the dates or times of the other package sessions.
+
+The backend must:
+
+1. Verify that the package is confirmed and eligible.
+2. Verify that the selected child session belongs to the client.
+3. Check that at least 24 hours remain before the original session.
+4. Validate the new date and time.
+5. Check availability.
+6. Secure the new slot atomically.
+7. Release the original slot.
+8. Update the child session.
+9. Cancel the old reminders.
+10. Create new reminders.
+11. Notify Farah.
+12. Notify the client.
+
+If any validation fails, the original session must remain unchanged.
+
+The rescheduling operation must preserve the parent package relationship.
+
+### 7.12 Package Validity
+
+Each package must have a configurable validity period.
+
+Farah must be able to configure the validity period for each package through the administration dashboard.
+
+The exact validity periods have not yet been confirmed and must remain pending until Farah provides the final values.
+
+The system must store the package validity information and calculate the applicable expiration date.
+
+Package validity must be distinct from the 96-hour payment deadline.
+
+### 7.13 Package Session Reminders
+
+Every confirmed child session must generate its own reminder schedule.
+
+Both the client and Farah must receive reminders:
+
+1. 24 hours before the session.
+2. 1 hour before the session.
+3. Exactly at the scheduled session start time.
+
+These reminders must be generated separately for every session in the package.
+
+For example, a package with 8 sessions must have 8 independent session reminder schedules.
+
+There must be no 30-minute reminder.
+
+### 7.14 Reminder Updates
+
+When a package session is rescheduled:
+
+- All pending reminders for its previous schedule must be cancelled.
+- Three new reminders must be created for the updated schedule.
+- Reminders for the other package sessions must remain unchanged.
+
+When a package reservation expires or is cancelled:
+
+- All relevant pending reminders must be cancelled.
+
+The system must prevent duplicate reminders.
+
+### 7.15 Package History
+
+The platform must preserve the relationship between the package and all its sessions.
+
+The client's history must display:
+
+- Package name.
+- Purchase date.
+- Payment status.
+- Package status.
+- Total number of sessions.
+- Completed sessions.
+- Remaining sessions.
+- Upcoming session dates.
+- Rescheduled sessions.
+- Cancelled sessions.
+- Package validity information.
+
+### 7.16 Administrative Management
+
+Farah must be able to:
+
+- View all package reservations.
+- View every child session.
+- Review package payments.
+- Confirm or reject package payments.
+- View the package's overall status.
+- View completed and remaining sessions.
+- Manage package validity.
+- Review rescheduling history.
+- View reminder delivery status.
+
+All important administrative actions must be recorded in the audit log.
+
+### 7.17 Security and Data Integrity
+
+The package system must guarantee:
+
+- All required sessions are selected before submission.
+- All selected slots are validated together.
+- No partial slot allocation.
+- No partial payment confirmation.
+- One parent reservation per package purchase.
+- Correct parent-child session relationships.
+- Correct 96-hour payment expiration.
+- Atomic release of every slot upon expiration.
+- Independent management of each child session.
+- Correct remaining session calculation.
+- Independent reminders for every session.
+- Secure ownership validation.
+
+All critical operations must be enforced by the backend and database.
+
+### 7.18 Pending Business Decisions
+
+The following decisions still require confirmation:
+
+- Exact validity period for each package.
+- Whether a client may have an active individual reservation and an active package simultaneously.
+- Whether a client may have multiple active packages simultaneously.
+- Whether package payment reminders should be sent before the 96-hour deadline.
+- Whether any additional rules should apply when rescheduling a package session close to its package expiration date.
+
 ## 8. Payment System
 
 ## 9. Availability Management
