@@ -4317,6 +4317,284 @@ All business-critical operations must remain consistent with the approved databa
 
 ## 16. External Integrations
 
+### 16.1 General Architecture
+
+The platform must support secure integrations with external services.
+
+Integrations must be modular and replaceable without requiring major changes to the core application.
+
+All external API credentials must be stored securely on the server.
+
+The frontend must never directly expose private provider credentials.
+
+### 16.2 M-Pesa Integration
+
+M-Pesa will be the initial payment method.
+
+Initial implementation:
+
+- Client receives M-Pesa payment instructions.
+- Client completes payment externally.
+- Client submits payment proof through the website.
+- Farah manually verifies the payment.
+- The backend updates the payment and reservation status.
+
+The initial system does not require automatic M-Pesa payment confirmation.
+
+Future implementation may support official M-Pesa API integration if suitable access is available.
+
+Before implementing automatic payments, verify:
+
+- Official API availability.
+- Merchant eligibility.
+- Registration requirements.
+- API documentation.
+- Transaction verification mechanisms.
+- Webhook support.
+- Transaction fees.
+- Security requirements.
+
+No payment must be considered confirmed based only on a frontend response or an unverified screenshot.
+
+### 16.3 Volet Integration
+
+Volet is a possible future payment integration.
+
+The architecture must allow Volet to be added without redesigning the reservation and payment database.
+
+Before implementation, evaluate:
+
+- Official API availability.
+- Merchant account requirements.
+- Payment creation capabilities.
+- Server-to-server payment verification.
+- Webhook support.
+- Refund capabilities.
+- Transaction fees.
+- Security and authentication requirements.
+
+Volet integration must remain disabled until its technical capabilities and business requirements have been verified.
+
+### 16.4 SMS Integration
+
+SMS will initially be required for reservation recovery through OTP.
+
+The SMS provider must support:
+
+- Sending messages to Mozambique.
+- International phone number formats.
+- Reliable delivery.
+- API-based message sending.
+- Delivery status reporting where available.
+- Secure API authentication.
+
+The provider must be evaluated for:
+
+- Mozambique coverage.
+- Pricing.
+- Delivery reliability.
+- Sender ID requirements.
+- API documentation.
+- Rate limits.
+
+OTP messages must never contain sensitive reservation or payment information.
+
+The final SMS provider is pending selection.
+
+### 16.5 WhatsApp Integration
+
+WhatsApp is an important communication channel for the business.
+
+Online sessions will use WhatsApp video calls.
+
+The website must display the official business WhatsApp contact information.
+
+Future automated WhatsApp notifications may include:
+
+- Reservation confirmation.
+- Payment status updates.
+- Session reminders.
+- Rescheduling information.
+- Cancellation information.
+
+Automated messaging must use an officially supported integration, such as the WhatsApp Business Platform, if selected.
+
+Before implementation, evaluate:
+
+- Business account requirements.
+- API availability.
+- Message template requirements.
+- Pricing.
+- Delivery status reporting.
+- User consent requirements.
+
+The system must not depend on unofficial WhatsApp automation.
+
+### 16.6 Email Integration
+
+Email may be used for:
+
+- Administrative notifications.
+- Institutional request notifications.
+- Client confirmations.
+- Payment status updates.
+- Important account communications.
+
+The system must support a configurable email provider.
+
+The provider must be evaluated for:
+
+- API availability.
+- Delivery reliability.
+- Domain verification.
+- Sending limits.
+- Pricing.
+- Deliverability and spam protection.
+
+The official business email is:
+
+farah.dibha.mz@gmail.com
+
+The final email delivery provider is pending selection.
+
+### 16.7 Supabase Integration
+
+Supabase will provide:
+
+- PostgreSQL database.
+- Authentication.
+- Private file storage.
+- Row Level Security.
+- Edge Functions.
+- Scheduled processing where supported.
+- Secure backend communication.
+
+Supabase credentials must follow the security rules defined in Section 11.
+
+### 16.8 Vercel Integration
+
+Vercel will host the Next.js application.
+
+The integration must support:
+
+- GitHub-based deployments.
+- Environment variables.
+- Preview deployments.
+- Production deployments.
+- Build logs.
+- Deployment monitoring.
+- Secure production configuration.
+
+Production and development environments must use separate credentials and configuration where appropriate.
+
+### 16.9 GitHub Integration
+
+GitHub will be the source-control platform.
+
+Requirements:
+
+- Version-controlled source code.
+- Version-controlled documentation.
+- Database migration history.
+- Controlled code changes.
+- Commit history.
+- Deployment integration with Vercel.
+
+Private secrets and production credentials must never be committed.
+
+### 16.10 External Integration Architecture
+
+External integrations must be accessed through secure backend modules.
+
+The application must separate:
+
+- Payment providers.
+- SMS providers.
+- WhatsApp providers.
+- Email providers.
+- Hosting services.
+- Database services.
+
+Provider-specific code must not be deeply embedded into business logic.
+
+This architecture must allow a provider to be replaced without rewriting core reservation functionality.
+
+### 16.11 Integration Failure Handling
+
+External service failures must not corrupt the core database.
+
+The system must support:
+
+- Timeouts.
+- Safe retries.
+- Error logging.
+- Delivery attempt tracking.
+- Duplicate request protection.
+- Provider response validation.
+- Operational alerts where appropriate.
+
+A failed SMS, WhatsApp or email delivery must not automatically cancel a valid reservation.
+
+### 16.12 Webhooks and External Events
+
+Future payment integrations may use webhooks.
+
+Webhook processing must:
+
+- Validate authenticity.
+- Verify provider signatures where supported.
+- Reject unauthorized events.
+- Prevent replay attacks.
+- Prevent duplicate processing.
+- Record relevant event identifiers.
+- Validate transaction details server-side.
+- Update payment records through secure backend operations.
+
+No webhook must be trusted without proper verification.
+
+### 16.13 Privacy and Data Sharing
+
+Only the minimum information necessary must be shared with external providers.
+
+Sensitive client information must not be transmitted unnecessarily.
+
+Provider data processing and privacy practices must be reviewed before integration.
+
+### 16.14 Integration Testing
+
+Before production use, test:
+
+- API authentication.
+- Successful requests.
+- Failed requests.
+- Timeouts.
+- Retry behavior.
+- Duplicate events.
+- Invalid webhook signatures.
+- Delivery status updates.
+- Provider unavailability.
+- Secret protection.
+
+### 16.15 Pending Provider Decisions
+
+The following decisions remain open:
+
+- Official M-Pesa API integration.
+- Volet API integration.
+- SMS provider.
+- WhatsApp Business Platform integration.
+- Email delivery provider.
+- Notification channel priorities.
+- Provider pricing and operational limits.
+
+No provider must be selected based only on assumptions about availability or cost.
+
+### 16.16 Implementation Rule
+
+All external integrations must be implemented securely, documented and tested.
+
+The core reservation, payment and scheduling systems must remain operational even when an external communication provider is temporarily unavailable.
+
 ## 17. Privacy and Data Protection
 
 ## 18. Testing Strategy
