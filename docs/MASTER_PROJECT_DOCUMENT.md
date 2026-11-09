@@ -1735,7 +1735,7 @@ The following details require confirmation:
 - Future Volet integration requirements.
 - Whether clients may submit a replacement proof after a rejection without creating a new reservation.
 
-UPDATE SECTION 9 — AVAILABILITY MANAGEMENT
+## 9. Availability Management
 
 Implement the following availability rules and requirements.
 
