@@ -3632,6 +3632,358 @@ The backend must implement the approved business rules consistently and must nev
 
 ## 14. Frontend Architecture
 
+### 14.1 General Architecture
+
+The frontend will be developed using:
+
+- Next.js.
+- TypeScript.
+- React.
+- Tailwind CSS.
+- Reusable UI components.
+- Supabase client libraries where appropriate.
+
+The application must use a modular, maintainable and responsive architecture.
+
+### 14.2 Design Principles
+
+The interface must follow these principles:
+
+- Elegant and professional visual identity.
+- Minimalist layouts.
+- Clear visual hierarchy.
+- Generous spacing.
+- Strong typography.
+- High-quality imagery.
+- Smooth and purposeful animations.
+- Consistent interactions.
+- Accessible components.
+- Minimal unnecessary text.
+
+The design must preserve the approved Farah Dibha Neurocoach identity and color palette.
+
+### 14.3 Responsive Design
+
+The website must support:
+
+- iPhone and other smartphones.
+- Android smartphones.
+- Tablets.
+- Desktop computers.
+- Large screens.
+
+Mobile-first development is required.
+
+All important actions must remain accessible on smaller screens.
+
+### 14.4 Public Website Structure
+
+The frontend must include the following public pages:
+
+- Home.
+- About Farah.
+- Services.
+- Individual Sessions.
+- Packages.
+- Booking.
+- Testimonials and Reviews.
+- Talks and Workshops.
+- Institutional Requests.
+- Contact.
+
+Each page must have a clear purpose and consistent visual identity.
+
+### 14.5 Navigation
+
+The navigation must provide access to the main website sections.
+
+Requirements:
+
+- Responsive navigation.
+- Clear active section indication.
+- Easy access to booking.
+- Mobile navigation suitable for touch interactions.
+- Consistent navigation across public pages.
+
+A mobile bottom navigation may be considered if it improves usability.
+
+### 14.6 Reusable Components
+
+The frontend must use reusable components for:
+
+- Buttons.
+- Navigation.
+- Headers.
+- Footers.
+- Cards.
+- Service presentations.
+- Package presentations.
+- Forms.
+- Modals.
+- Notifications.
+- Loading states.
+- Error states.
+- Confirmation messages.
+- Calendar controls.
+- Time slot selectors.
+
+Components must remain consistent throughout the application.
+
+### 14.7 Booking Interface
+
+The booking interface must provide separate flows for individual sessions and packages.
+
+Individual booking:
+
+1. Select the individual session.
+2. Select modality.
+3. Enter client information.
+4. Select an available date.
+5. Select an available time.
+6. Review reservation details.
+7. Submit the reservation.
+8. Display payment instructions and deadline.
+
+Package booking:
+
+1. Select a package.
+2. Select modality.
+3. Enter client information.
+4. Select all required session dates.
+5. Select all required session times.
+6. Review every selected session.
+7. Submit the complete package reservation.
+8. Display payment instructions and the 96-hour deadline.
+
+The interface must clearly distinguish provisional reservations from confirmed reservations.
+
+The frontend must display availability returned by the backend and never independently determine whether a slot is truly available.
+
+### 14.8 Calendar and Time Slot Interface
+
+The booking calendar must:
+
+- Display available dates.
+- Distinguish unavailable dates.
+- Respect the Africa/Maputo timezone.
+- Display available time slots.
+- Reflect the selected modality.
+- Enforce booking notice restrictions.
+- Prevent selection of invalid dates.
+- Allow package clients to select multiple sessions.
+
+The interface must remain synchronized with backend availability validation.
+
+### 14.9 Client Reservation Area
+
+Clients must have access to a secure reservation management interface.
+
+The interface must support:
+
+- Reservation recovery using SMS OTP.
+- Viewing reservation details.
+- Viewing payment status.
+- Submitting payment proof.
+- Viewing package sessions.
+- Viewing remaining package sessions.
+- Rescheduling eligible sessions.
+- Cancelling eligible reservations or sessions.
+- Viewing relevant notifications.
+
+Clients must only access reservations associated with their verified identity.
+
+No permanent password-based client account is required initially.
+
+### 14.10 Payment Interface
+
+The payment interface must display:
+
+- Reservation amount.
+- Currency in MZN.
+- Payment method.
+- Payment instructions.
+- Payment deadline.
+- Payment proof upload.
+- Payment review status.
+- Confirmation or rejection information.
+
+The interface must clearly explain that submitting proof does not automatically confirm payment.
+
+### 14.11 Administrative Dashboard
+
+The administrative interface must be private and protected.
+
+It must provide access to:
+
+- Overview.
+- Reservations.
+- Payments.
+- Calendar.
+- Availability.
+- Services and packages.
+- Clients.
+- Reviews.
+- Institutional requests.
+- Notifications.
+- Settings.
+
+All administrative actions must be validated by the backend.
+
+### 14.12 Admin Calendar Interface
+
+The calendar must allow Farah to:
+
+- View scheduled sessions.
+- Distinguish individual sessions from package sessions.
+- View session status.
+- View client information.
+- Identify online and in-person sessions.
+- Manage availability.
+- Create availability blocks.
+- Detect conflicts with existing reservations.
+
+Calendar actions must not bypass backend validation.
+
+### 14.13 Forms and Validation
+
+All forms must provide:
+
+- Clear labels.
+- Appropriate input types.
+- Required field indicators.
+- Immediate user feedback.
+- Server-side validation.
+- Safe error messages.
+- Submission loading states.
+- Success and failure states.
+
+Client-side validation must improve usability but must never replace backend validation.
+
+### 14.14 Loading, Error and Empty States
+
+Every major interface must support:
+
+- Loading states.
+- Empty states.
+- Error states.
+- Success states.
+- Retry actions where appropriate.
+
+The interface must avoid appearing broken when data is loading or unavailable.
+
+### 14.15 Accessibility
+
+The frontend must follow accessibility best practices.
+
+Requirements include:
+
+- Semantic HTML.
+- Keyboard navigation.
+- Visible focus states.
+- Appropriate color contrast.
+- Accessible form labels.
+- Screen reader support.
+- Touch-friendly controls.
+- Reduced-motion support.
+
+### 14.16 Performance
+
+The application must prioritize:
+
+- Fast initial loading.
+- Optimized images.
+- Appropriate image formats.
+- Lazy loading where appropriate.
+- Efficient component rendering.
+- Minimal unnecessary JavaScript.
+- Good mobile performance.
+
+### 14.17 SEO and Metadata
+
+Public pages must support:
+
+- Page titles.
+- Meta descriptions.
+- Open Graph metadata.
+- Appropriate heading hierarchy.
+- Descriptive image alternative text.
+- Sitemap.
+- Robots configuration.
+- Search engine indexing where appropriate.
+
+Private administrative and client reservation pages must not be publicly indexed.
+
+### 14.18 Frontend Security
+
+The frontend must:
+
+- Never expose secret environment variables.
+- Never expose the Supabase service-role key.
+- Avoid storing sensitive information unnecessarily.
+- Use secure authentication flows.
+- Protect private pages.
+- Avoid trusting client-side roles or reservation statuses.
+- Handle user-provided content safely.
+
+### 14.19 Suggested Project Structure
+
+The frontend should follow a modular structure similar to:
+
+src/
+  app/
+    (public)/
+    (client)/
+    admin/
+    api/
+  components/
+    ui/
+    layout/
+    forms/
+  features/
+    booking/
+    payments/
+    clients/
+    packages/
+    availability/
+    notifications/
+    reviews/
+    admin/
+  lib/
+    supabase/
+    auth/
+    validation/
+    utils/
+  hooks/
+  types/
+
+The final structure may be adjusted as implementation progresses.
+
+### 14.20 Frontend Testing
+
+The frontend must be tested for:
+
+- Mobile responsiveness.
+- Navigation.
+- Booking flows.
+- Package selection.
+- Calendar interactions.
+- Form validation.
+- Payment proof submission.
+- Client reservation recovery.
+- Rescheduling.
+- Cancellation.
+- Administrative permissions.
+- Accessibility.
+- Loading and error states.
+
+### 14.21 Implementation Rule
+
+The frontend must never bypass backend business rules.
+
+All sensitive operations must be validated and authorized on the server.
+
+The interface must reflect the approved business architecture without introducing conflicting booking, payment or scheduling rules.
+
 ## 15. Admin Dashboard
 
 ## 16. External Integrations
