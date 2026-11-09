@@ -1997,6 +1997,280 @@ The following details require confirmation from Farah:
 
 ## 10. Notifications and Reminders
 
+### 10.1 General Notification Architecture
+
+The platform must include a centralized notification system.
+
+Notifications must inform clients and Farah about important reservation, payment and scheduling events.
+
+The notification architecture must support:
+
+- Email.
+- SMS.
+- WhatsApp.
+
+The actual providers must be selected and configured before production deployment.
+
+Notification processing must be independent from the main reservation transaction.
+
+A notification delivery failure must never corrupt reservation, payment or session data.
+
+### 10.2 Notification Recipients
+
+The system must support two main recipient types:
+
+1. Clients.
+2. Administrator (Farah).
+
+Both recipients must receive the relevant notifications according to the event and notification rules.
+
+### 10.3 Individual Session Reminders
+
+Every confirmed individual session must generate exactly three scheduled reminders for both the client and Farah.
+
+The reminders must be sent:
+
+1. 24 hours before the scheduled session.
+2. 1 hour before the scheduled session.
+3. Exactly at the scheduled session start time.
+
+There must be no 30-minute reminder.
+
+Each reminder must contain:
+
+- Client name, where appropriate.
+- Session date.
+- Session time.
+- Session modality.
+- Relevant session information.
+
+All reminder times must follow the Africa/Maputo timezone.
+
+### 10.4 Package Session Reminders
+
+Every confirmed session belonging to a package must have its own independent reminder schedule.
+
+Both the client and Farah must receive reminders:
+
+1. 24 hours before that session.
+2. 1 hour before that session.
+3. Exactly at that session's scheduled start time.
+
+The reminder system must process every child session independently.
+
+For example, a package containing 12 sessions must generate three reminders for each of its 12 sessions, for both recipients.
+
+Reminders must never be generated only for the first session of a package.
+
+### 10.5 Reminder Scheduling
+
+When a session becomes confirmed, the system must schedule its three reminders.
+
+The system must store the scheduled delivery time and associate every reminder with the correct reservation and scheduled session.
+
+The scheduling system must support:
+
+- Creating reminders.
+- Processing reminders when they become due.
+- Recording delivery results.
+- Retrying eligible failures.
+- Cancelling outdated reminders.
+- Preventing duplicate delivery.
+
+A scheduled reminder must not be treated as successfully delivered until the selected provider confirms the delivery result.
+
+### 10.6 Rescheduling and Reminder Replacement
+
+When an individual session is rescheduled:
+
+- All pending reminders associated with the old session time must be cancelled.
+- Three new reminders must be created using the updated session time.
+- Both the client and Farah must receive the relevant rescheduling notification.
+
+When a package session is rescheduled:
+
+- Only reminders belonging to that specific child session must be replaced.
+- Reminders for all other package sessions must remain unchanged.
+- Both the client and Farah must be informed about the change.
+
+The replacement operation must prevent outdated reminders from being sent.
+
+### 10.7 Cancellation and Expiration
+
+When a session is cancelled, all its pending reminders must be cancelled.
+
+When an individual reservation expires, its pending reminders must be cancelled.
+
+When a package reservation expires, all pending reminders belonging to every child session must be cancelled.
+
+The system must never send a session reminder for a cancelled, expired or otherwise ineligible session.
+
+### 10.8 Operational Notifications for Farah
+
+Farah must receive operational notifications for important events, including:
+
+- New individual reservation.
+- New package reservation.
+- Payment proof submitted.
+- Payment confirmed.
+- Payment rejected.
+- Reservation expired.
+- Package expired.
+- Session cancelled.
+- Session rescheduled.
+- Institutional request submitted.
+- Important notification delivery failures.
+
+These notifications must be distinguishable from scheduled session reminders.
+
+### 10.9 Client Notifications
+
+Clients must receive relevant notifications for:
+
+- Provisional reservation created.
+- Payment instructions.
+- Payment proof successfully submitted.
+- Payment confirmed.
+- Payment rejected.
+- Reservation expired.
+- Reservation cancelled.
+- Session rescheduled.
+- Package reservation confirmed.
+- Other important changes affecting their reservations.
+
+The system must not expose private information belonging to other clients.
+
+### 10.10 Payment Deadline Notifications
+
+Payment reminders are separate from session reminders.
+
+The schedules for payment reminders have not yet been approved.
+
+The architecture must allow payment reminders to be configured independently for:
+
+- Individual reservations with a 24-hour payment deadline.
+- Package reservations with a 96-hour payment deadline.
+
+No payment reminder schedule must be assumed until Farah confirms the desired timing.
+
+### 10.11 Notification Database Architecture
+
+The proposed database architecture must include:
+
+notifications
+
+This table should store the logical notification and its relationship with the relevant reservation or scheduled session.
+
+Suggested fields:
+
+- id
+- recipient_type
+- recipient_id
+- reservation_id
+- reservation_session_id
+- notification_type
+- channel
+- scheduled_at
+- status
+- created_at
+- updated_at
+
+A separate delivery history table is also proposed:
+
+notification_attempts
+
+Suggested fields:
+
+- id
+- notification_id
+- provider
+- provider_message_id
+- attempt_number
+- attempted_at
+- delivery_status
+- error_message
+- created_at
+
+The final database schema must be defined during database architecture design.
+
+### 10.12 Duplicate Prevention
+
+The system must prevent duplicate reminders and duplicate operational notifications.
+
+Each scheduled reminder must have a unique logical identity based on:
+
+- Reservation session.
+- Recipient.
+- Notification type.
+- Scheduled occurrence.
+
+The system must use database constraints or equivalent reliable mechanisms to prevent duplicate scheduling.
+
+Retries must not create additional independent notifications.
+
+### 10.13 Delivery Failures and Retries
+
+If a notification provider fails:
+
+- The attempt must be recorded.
+- The error must be stored.
+- The system may retry according to the configured retry policy.
+- Failed notifications must be visible to the administrator.
+
+A notification failure must not change the status of a reservation, payment or session.
+
+Retry policies must prevent uncontrolled repeated attempts.
+
+### 10.14 Scheduling Infrastructure
+
+The platform must use reliable scheduled backend processing to identify and deliver notifications when they become due.
+
+The proposed architecture may use:
+
+- Supabase Edge Functions.
+- Supabase Cron or another reliable scheduler.
+- Database-backed notification queues.
+- External notification providers.
+
+The scheduling mechanism must work independently of whether a client or administrator currently has the website open.
+
+### 10.15 Notification Time Accuracy
+
+The official timezone is Africa/Maputo.
+
+The system must calculate reminder times using the actual scheduled session timestamp.
+
+For example:
+
+- A reminder scheduled 24 hours before must be calculated as exactly 24 hours before the session.
+- A reminder scheduled 1 hour before must be calculated as exactly 1 hour before the session.
+- The final reminder must be scheduled for the exact session start time.
+
+The system must not substitute approximate intervals.
+
+### 10.16 Notification Security and Privacy
+
+Notifications must contain only the information necessary for their purpose.
+
+Sensitive information, payment proofs and private client records must not be included in unsecured messages.
+
+Provider credentials and API keys must remain server-side.
+
+All notification operations must be authorized and recorded appropriately.
+
+### 10.17 Pending Notification Decisions
+
+The following details must be confirmed before production:
+
+- SMS provider.
+- Email provider.
+- WhatsApp Business Platform or provider.
+- Preferred notification channels for clients.
+- Preferred notification channels for Farah.
+- Payment reminder schedules.
+- Retry policy.
+- Whether clients may choose notification preferences.
+
 ## 11. Authentication and Security
 
 ## 12. Database Architecture
