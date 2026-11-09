@@ -2768,6 +2768,18 @@ Requirements:
 - Must allow cancellation of outdated reminders.
 - Must prevent duplicate logical notifications.
 
+Notification idempotency and uniqueness:
+
+- Every logical notification must have a unique idempotency key.
+- The idempotency key must be stored in the notifications table and protected by a database UNIQUE constraint.
+- The key must identify the specific notification event, recipient, channel and scheduled delivery time.
+- Repeated scheduling requests for the same logical notification must reuse the existing notification instead of creating another one.
+- Client and Farah notifications must have separate idempotency keys because they are different recipients.
+- The three session reminders (24 hours, 1 hour and exact session start time) must each have their own unique notification identity.
+- Rescheduling a session must cancel its outdated pending notifications and create new notifications with keys corresponding to the new schedule.
+- Retrying delivery must create a new notification attempt, never a new logical notification.
+- Concurrent scheduling processes must not be able to create duplicate logical notifications.
+
 #### B. notification_attempts
 
 Stores the delivery history of notifications.
