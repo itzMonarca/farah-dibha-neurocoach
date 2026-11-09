@@ -1298,10 +1298,12 @@ The backend must:
 2. Verify that the selected child session belongs to the client.
 3. Check that at least 24 hours remain before the original session.
 4. Validate the new date and time.
-5. Check availability.
-6. Secure the new slot atomically.
-7. Release the original slot.
-8. Update the child session.
+5. Enforce the package scheduling window for the new session:
+   - Minimum advance booking: 7 days.
+   - Maximum advance booking: 1 month.
+6. Check availability.
+7. Secure the new slot atomically.
+8. Release the original slot.
 9. Cancel the old reminders.
 10. Create new reminders.
 11. Notify Farah.
