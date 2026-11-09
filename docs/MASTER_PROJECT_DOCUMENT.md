@@ -2619,6 +2619,17 @@ Requirements:
 - Payment status changes must be validated by the backend.
 - Payment history must not be silently overwritten.
 
+Payment relationship integrity:
+
+- Every reservation must have exactly one associated payment record.
+- Each payment record must belong to exactly one reservation.
+- The database must enforce a one-to-one relationship between reservations and payments.
+- The reservation_id field in payments must have a unique constraint.
+- The payment record must be created in the same database transaction as its reservation.
+- Repeated requests must not create duplicate payment records.
+- Multiple payment proof submissions may belong to the same payment record, preserving their individual history.
+- A payment proof must never create a new payment record or change payment confirmation status automatically.
+
 #### B. payment_proofs
 
 Stores references to submitted payment proof files.
