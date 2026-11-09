@@ -879,6 +879,232 @@ These decisions must be documented before finalizing the database constraints.
 
 ## 6. Individual Sessions
 
+### 6.1 General Rules
+
+Individual sessions are single-session reservations.
+
+Each individual session must have:
+
+- One client.
+- One scheduled date.
+- One start time.
+- One end time.
+- A duration of 60 minutes.
+- One selected service.
+- One payment record.
+
+The individual session price is 1,850 MZN.
+
+Available modalities:
+
+- Online.
+- In person in Maputo.
+
+Online sessions are conducted through WhatsApp video calls.
+
+### 6.2 Minimum Booking Notice
+
+Individual sessions must be booked at least 3 days in advance.
+
+The system must calculate the minimum booking notice from the exact moment the client submits the reservation.
+
+Reservations with less than 72 hours of advance notice must be rejected.
+
+The backend must enforce this rule.
+
+### 6.3 Booking Process
+
+The individual booking process must follow these steps:
+
+1. Client selects an individual session.
+2. Client selects the preferred modality.
+3. Client provides the required personal information.
+4. Client selects an available date.
+5. Client selects an available time.
+6. Backend validates the booking restrictions.
+7. Backend checks availability.
+8. The selected time slot is temporarily held.
+9. A provisional reservation is created.
+10. Client receives payment instructions.
+
+The reservation must initially have pending payment status.
+
+### 6.4 One Active Individual Reservation Per Client
+
+Each client may have only one active individual session reservation at a time.
+
+A client cannot create another individual session reservation while an existing individual session is still active and has not been completed.
+
+The restriction must apply regardless of whether the client attempts to use another device or browser.
+
+The backend must enforce this rule using the verified client identity.
+
+Once the previous individual session is completed, the client may create another individual reservation.
+
+An expired or cancelled reservation must not permanently prevent the client from booking again.
+
+### 6.5 Payment Deadline
+
+After a provisional individual reservation is created, the client has exactly 24 hours to complete payment.
+
+The client must submit payment proof through the website.
+
+Payment confirmation must always be performed manually by Farah.
+
+Uploading payment proof does not confirm the reservation.
+
+If Farah does not manually confirm the payment within 24 hours after the provisional reservation was created:
+
+- The reservation must automatically expire.
+- The selected time slot must be released.
+- The client must be informed that the reservation expired.
+- The slot must become available to other clients.
+
+The deadline must not be extended merely because payment proof was submitted.
+
+### 6.6 Payment Verification
+
+Farah must be able to:
+
+- View the submitted payment proof.
+- Review the payment information.
+- Confirm the payment.
+- Reject the payment.
+
+When payment is confirmed before the deadline:
+
+- Reservation status changes to confirmed.
+- The scheduled session becomes confirmed.
+- The client receives a confirmation notification.
+- Farah receives the relevant notification.
+- The session reminder schedule is activated.
+
+When payment is rejected:
+
+- The client must be informed.
+- The rejection reason should be recorded.
+- The reservation must remain subject to its original payment deadline.
+
+### 6.7 Cancellation Rules
+
+Clients may cancel an individual session up to 24 hours before its scheduled start time.
+
+Cancellation must be rejected when fewer than 24 hours remain before the session.
+
+When a valid cancellation is completed:
+
+- Reservation status changes to cancelled.
+- The scheduled time slot is released.
+- Pending reminders for that session are cancelled.
+- The client receives a cancellation notification.
+- Farah receives a cancellation notification.
+
+Cancellation must be processed securely by the backend.
+
+### 6.8 Rescheduling Rules
+
+Clients may reschedule an individual session up to 24 hours before its scheduled start time.
+
+Rescheduling must not require manual approval from Farah.
+
+The client must select another available date and time.
+
+The backend must:
+
+1. Verify that the original session is eligible for rescheduling.
+2. Validate the new date and time.
+3. Check the applicable minimum booking notice.
+4. Verify that the new slot is available.
+5. Atomically allocate the new slot.
+6. Release the original slot.
+7. Update the scheduled session.
+8. Cancel the original reminders.
+9. Create new reminders.
+10. Notify Farah about the change.
+11. Notify the client about the updated reservation.
+
+If the new slot is unavailable or any validation fails, the original reservation must remain unchanged.
+
+### 6.9 Rescheduling Restrictions
+
+A rescheduled session must still respect the minimum booking notice of 3 days.
+
+The new date and time must be within Farah's configured working hours and must not conflict with an availability block or another reservation.
+
+A rescheduling operation must never temporarily leave the client without the original reservation if the new slot cannot be secured.
+
+### 6.10 Session Reminders
+
+Both the client and Farah must receive reminders for every confirmed individual session.
+
+The system must generate exactly three scheduled reminders:
+
+1. 24 hours before the session.
+2. 1 hour before the session.
+3. Exactly at the scheduled session start time.
+
+There must be no 30-minute reminder.
+
+Each reminder must contain the correct session date, time and relevant information.
+
+### 6.11 Reminder Management
+
+When a session is rescheduled:
+
+- All pending reminders associated with the previous schedule must be cancelled.
+- Three new reminders must be scheduled using the updated date and time.
+
+When a session is cancelled:
+
+- All pending reminders must be cancelled.
+
+Reminder processing must prevent duplicate notifications.
+
+Notification delivery failures must be recorded and must not change the reservation status.
+
+### 6.12 Session Completion
+
+After the scheduled session has taken place, Farah must be able to mark it as completed.
+
+The system must record:
+
+- Completion status.
+- Completion date and time.
+- Relevant administrative information, when necessary.
+
+Only completed sessions may become eligible for the client review process, subject to the review and moderation rules.
+
+### 6.13 Administrative Management
+
+Farah must be able to:
+
+- View individual session reservations.
+- View client information.
+- Review payment status.
+- Confirm or reject payments.
+- View scheduled dates and times.
+- View rescheduling history.
+- View cancellation history.
+- Mark sessions as completed.
+- Review notification status.
+
+All important administrative changes must be recorded in the audit log.
+
+### 6.14 Security and Data Integrity
+
+The individual booking system must guarantee:
+
+- One active individual reservation per client.
+- No overlapping confirmed or temporarily held time slots.
+- No booking with less than 3 days of advance notice.
+- No unauthorized cancellation or rescheduling.
+- No automatic payment confirmation.
+- No confirmation after the payment deadline.
+- Atomic rescheduling operations.
+- Correct cancellation and recreation of reminders.
+
+All critical rules must be enforced by the backend and database.
+
 ## 7. Packages and Multiple Sessions
 
 ## 8. Payment System
