@@ -479,6 +479,162 @@ The booking and payment rules must be enforced by the backend, not only by front
 
 ## 4. User Roles and Permissions
 
+### 4.1 General Access Model
+
+The platform must use role-based access control (RBAC).
+
+Every operation involving reservations, payments, client information, availability or administrative settings must be authorized by the backend.
+
+Frontend restrictions alone are not sufficient to protect sensitive information.
+
+The system must distinguish between:
+
+1. Public visitors.
+2. Clients.
+3. Administrators.
+
+### 4.2 Public Visitors
+
+Public visitors do not need an account to browse the website.
+
+They may:
+- View public website pages.
+- View services and packages.
+- View published prices.
+- View available booking options.
+- Submit institutional requests.
+- Start a reservation.
+
+They must not:
+- Access private client information.
+- View payment proofs.
+- View other clients' reservations.
+- Access administrative pages.
+- Modify availability or business settings.
+
+### 4.3 Clients
+
+Clients do not require a permanent password-based account.
+
+They must verify their phone number through SMS OTP when recovering an existing reservation.
+
+Clients may:
+- Create individual reservations.
+- Create package reservations.
+- Submit payment proofs.
+- Recover eligible reservations using phone verification.
+- View their own reservation information.
+- View their own payment status.
+- Request cancellation according to the applicable rules.
+- Reschedule eligible sessions according to the applicable rules.
+- Submit reviews when eligible.
+
+Clients must not:
+- View another client's information.
+- Access another client's reservations.
+- View private payment proofs belonging to other clients.
+- Confirm their own payments.
+- Modify administrative settings.
+- Change another client's reservation.
+- Access the admin dashboard.
+
+### 4.4 Administrator
+
+The administrator is Farah Dibha.
+
+The administrator must authenticate through a secure administrative login.
+
+The administrator may:
+- View and manage reservations.
+- View client information.
+- Review payment proofs.
+- Confirm or reject payments manually.
+- Manage availability.
+- Create availability blocks.
+- Manage services and packages.
+- Configure package validity.
+- Manage reviews.
+- Manage institutional requests.
+- View operational notifications.
+- Access administrative reports.
+- Manage permitted platform settings.
+
+Administrative permissions must be verified server-side.
+
+### 4.5 Administrative Account Protection
+
+The administrator account must follow these security requirements:
+
+- Public users must never be able to register as administrators.
+- Administrative access must be explicitly authorized.
+- Administrative permissions must be stored and validated securely.
+- The administrator must not receive permissions merely by creating a normal client account.
+- Administrative actions must be recorded in an audit log.
+- Sensitive administrative operations must require an authenticated and authorized session.
+
+### 4.6 Reservation Ownership
+
+Every reservation must be associated with a client record.
+
+Every package session must be associated with its parent package reservation.
+
+Clients may only access reservations associated with their verified phone number.
+
+The backend must validate ownership before allowing any client operation.
+
+### 4.7 Payment Permissions
+
+Clients may:
+- Upload payment proof.
+- View the payment status of their own reservations.
+
+Only authorized administrators may:
+- Confirm payments.
+- Reject payments.
+- Change payment verification status.
+
+Uploading a payment proof must never automatically confirm a payment.
+
+### 4.8 Availability Permissions
+
+Only authorized administrators may:
+- Configure regular working hours.
+- Create or remove availability blocks.
+- Block entire days.
+- Configure holidays and breaks.
+
+Clients may only select time slots returned as available by the backend.
+
+Clients must never directly modify availability records.
+
+### 4.9 Data Privacy
+
+The system must follow the principle of least privilege.
+
+Each role must only receive the information and permissions necessary to perform its intended operations.
+
+Sensitive client information, payment proofs and administrative records must never be exposed through public database access.
+
+### 4.10 Audit Logging
+
+The platform must record important administrative actions, including:
+
+- Payment confirmation or rejection.
+- Reservation cancellation.
+- Reservation changes.
+- Availability changes.
+- Package and price changes.
+- Administrative permission changes.
+
+Audit records must include:
+- Administrator identifier.
+- Action performed.
+- Affected record.
+- Date and time.
+- Relevant action details.
+
+Audit logs must not be editable by ordinary clients.
+
 ## 5. Booking System
 
 ## 6. Individual Sessions
