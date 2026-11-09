@@ -2034,6 +2034,7 @@ Suggested fields:
 - notification_type
 - channel
 - scheduled_at
+- idempotency_key
 - status
 - created_at
 - updated_at
