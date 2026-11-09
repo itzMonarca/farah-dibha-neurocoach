@@ -2871,6 +2871,16 @@ Requirements:
 - Publication must respect the client's consent.
 - Duplicate reviews for the same session must be prevented.
 
+Review uniqueness and integrity:
+
+- Each reservation_session_id must have at most one review.
+- The database must enforce this rule using a UNIQUE constraint on reservation_session_id.
+- The review must belong to the client who owns the associated reservation session.
+- The backend must verify that the session is marked as completed before accepting a review.
+- Concurrent review submissions must not create duplicate records.
+- Clients must not be able to change the client_id or reservation_session_id to review another client's session.
+- Review ownership and eligibility must always be validated server-side.
+
 ### 12.9 Institutional Requests Table
 
 #### institutional_requests
