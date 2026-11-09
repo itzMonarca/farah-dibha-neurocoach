@@ -2635,6 +2635,54 @@ Requirements:
 ### 12.5 Availability Tables
 
 #### A. availability_rules
+ADD THE FOLLOWING DATABASE TABLE TO
+SECTION 12.5 — AVAILABILITY TABLES.
+
+C. availability_overrides
+
+This table must manage temporary changes to
+Farah's regular working schedule.
+
+It must support:
+
+- Opening additional working hours on specific dates.
+- Reducing regular working hours on specific dates.
+- Creating exceptional working periods.
+- Modifying availability without permanently
+  changing the weekly schedule.
+
+Each record must include:
+
+- id
+- title or description
+- override_type
+- start_at
+- end_at
+- modality, when applicable
+- created_by
+- created_at
+- updated_at
+
+The system must distinguish between temporary
+periods that open availability and periods that
+reduce availability.
+
+All overrides must be validated against:
+- Existing reservations.
+- Pending reservation holds.
+- Availability blocks.
+- Standard working-hour restrictions.
+- The permanent Sunday closure.
+
+Overrides must never automatically cancel or
+move existing reservations.
+
+Add availability_overrides to the official
+database table list and include it in the
+database migration plan.
+
+Do not modify unrelated database structures
+or existing booking rules.
 
 Stores Farah's regular working schedule.
 
