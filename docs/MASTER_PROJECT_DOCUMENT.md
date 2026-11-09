@@ -3300,6 +3300,17 @@ Examples:
 - Retrying eligible failed notification attempts.
 - Monitoring operational failures.
 
+Backend layer security and execution rules:
+
+- All backend layers must follow the same centralized business rules.
+- Critical database operations must be executed through authorized database transactions or database functions.
+- Edge Functions must never bypass database constraints, RLS requirements or authorization checks.
+- Scheduled Jobs must invoke secure backend operations and must not directly modify critical records without transactional protection.
+- Every sensitive operation must validate the requesting user's authorization server-side.
+- The Supabase service role key must only be used in trusted server-side environments and must never be exposed to the browser.
+- External service failures must not leave reservations, payments or notifications in inconsistent states.
+- Critical backend operations must support safe retries and idempotent execution.
+
 ### 13.4 Critical Booking Operations
 
 All critical booking operations must be processed securely on the backend.
