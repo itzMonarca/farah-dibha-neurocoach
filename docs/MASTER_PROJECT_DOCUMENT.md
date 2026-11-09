@@ -3055,6 +3055,19 @@ These must cover:
 
 The exact indexes, unique constraints and exclusion constraints must be designed before implementation.
 
+Critical database constraints:
+
+- A client must not have more than one active individual session reservation at a time.
+- Each reservation must have exactly one associated payment record.
+- Each reservation_session must belong to exactly one parent reservation.
+- Each reservation_session must have a valid start and end time, with a duration of exactly 60 minutes.
+- Active session reservations must not overlap in time.
+- Each logical notification must have a unique idempotency key.
+- Each reservation_session must have at most one client review.
+- Payment deadlines must be stored and enforced consistently.
+- Package reservations must contain the exact number of sessions required by their package type.
+- All critical uniqueness and integrity rules must be enforced by the database, not only by application code.
+
 ### 12.15 Database Security
 
 Row Level Security must be enabled for all sensitive tables.
