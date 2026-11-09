@@ -2963,6 +2963,16 @@ The database must implement the following relationships:
 - One administrator can perform multiple audited actions.
 - One administrator can create multiple availability blocks.
 
+Foreign key and relationship integrity:
+
+- Every relationship between database tables must be enforced using appropriate foreign key constraints.
+- Foreign keys must reference the correct primary or unique keys.
+- The database must prevent orphaned records.
+- Deleting a parent reservation must not automatically delete financial records, payment history, audit logs or other records that must be preserved.
+- ON DELETE and ON UPDATE behaviors must be explicitly defined for every foreign key relationship.
+- Critical historical records must be preserved even when related records are cancelled, expired or no longer active.
+- Foreign key constraints must be validated before production deployment.
+
 ### 12.12 Reservation and Session Integrity
 
 The database must preserve the distinction between parent reservations and child sessions.
