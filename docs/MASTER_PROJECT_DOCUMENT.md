@@ -3020,6 +3020,19 @@ Critical booking operations must use database transactions and appropriate datab
 
 A package reservation must allocate all its required time slots atomically.
 
+Atomic booking and concurrency integrity:
+
+- Slot availability must always be validated inside the database transaction that creates or modifies a reservation.
+- The system must use database-level locking or equivalent concurrency control to prevent simultaneous requests from securing the same slot.
+- Temporary slot holds must prevent other clients from booking the same time interval while the hold remains active.
+- Expired temporary holds must be released safely and must no longer block availability.
+- Rescheduling must secure the new slot before releasing the original slot.
+- If any step of a booking or rescheduling transaction fails, all changes must be rolled back.
+- Package booking must either secure every requested session slot or secure none.
+- Concurrent package bookings must not partially reserve overlapping slots.
+- The database must be the final authority for slot allocation; frontend availability checks must never guarantee a booking.
+- All concurrency protection must remain effective even when requests originate from different devices or browser sessions.
+
 ### 12.14 Database Indexes and Constraints
 
 The final database design must include appropriate indexes and constraints.
