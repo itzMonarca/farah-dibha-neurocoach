@@ -1737,6 +1737,264 @@ The following details require confirmation:
 
 ## 9. Availability Management
 
+### 9.1 General Architecture
+
+The platform must include a centralized availability management system.
+
+The system must determine which dates and times can be reserved by clients.
+
+Availability must consider:
+
+- Farah's configured working hours.
+- Session duration.
+- Existing reservations.
+- Pending reservations.
+- Availability blocks.
+- Booking restrictions.
+- Reservation type.
+- Minimum and maximum booking notice.
+
+The backend must be the final authority when determining whether a time slot is available.
+
+### 9.2 Administrative Working Hours
+
+Farah must be able to configure her regular working hours through the private admin dashboard.
+
+The configuration must support:
+
+- Different working hours for different weekdays.
+- Days when Farah does not work.
+- Multiple working periods within the same day.
+- Temporary changes to regular working hours.
+
+Historical working hours have included Monday to Saturday, with online sessions only after 17:00.
+
+These historical hours must not be treated as permanent rules. The final schedule must be configurable and confirmed by Farah.
+
+### 9.3 Session Duration
+
+The standard individual session duration is 60 minutes.
+
+The availability engine must use the configured session duration when generating bookable time slots.
+
+The system must prevent overlapping reservations.
+
+The architecture should allow session duration to be configured for future services if necessary.
+
+### 9.4 Session Modalities
+
+The platform must support:
+
+- Online sessions.
+- In-person sessions in Maputo.
+
+Farah must be able to configure which modalities are available during specific working periods.
+
+For example, a working period may allow online sessions only.
+
+The availability engine must only display time slots compatible with the selected modality.
+
+### 9.5 Availability Blocks
+
+The system must allow Farah to block availability whenever she cannot receive clients.
+
+Supported block types must include:
+
+- Full-day blocks.
+- Multiple-day blocks.
+- Specific time blocks.
+- Breaks.
+- Holidays.
+- Vacations.
+- Personal commitments.
+- Temporary unavailability.
+
+Availability blocks must be stored in the database.
+
+Proposed database table:
+
+availability_blocks
+
+Suggested fields:
+
+- id
+- title
+- block_type
+- start_at
+- end_at
+- reason
+- created_by
+- created_at
+- updated_at
+
+The final schema must be defined during database architecture design.
+
+### 9.6 Creating Availability Blocks
+
+Farah must be able to:
+
+- Select a date.
+- Select a start time.
+- Select an end time.
+- Block an entire day.
+- Block multiple consecutive days.
+- Create a specific break.
+- Add an optional description.
+- Save or remove a block.
+
+All date and time values must be interpreted using the Africa/Maputo timezone.
+
+### 9.7 Availability Block Validation
+
+Before creating an availability block, the backend must check whether it overlaps with existing reservations.
+
+If a block overlaps with confirmed or temporarily held sessions, the system must not silently cancel or modify those reservations.
+
+The administrator must receive clear information about the conflict.
+
+Any required changes to existing reservations must follow the applicable cancellation or rescheduling rules.
+
+### 9.8 Temporary Availability Changes
+
+Farah must be able to modify her working hours temporarily without changing her regular weekly schedule.
+
+Temporary changes must have clearly defined start and end dates.
+
+When the temporary period ends, the regular schedule must become effective again.
+
+The system must distinguish between:
+
+- Regular weekly availability.
+- Temporary schedule changes.
+- Availability blocks.
+- Existing reservations.
+
+### 9.9 Available Time Slot Generation
+
+The backend must generate available time slots using the configured schedule.
+
+A time slot may only be displayed as available when:
+
+- It falls within an allowed working period.
+- The selected modality is supported.
+- The full session duration fits within the working period.
+- It does not overlap an availability block.
+- It does not overlap another active reservation.
+- It satisfies the applicable booking notice rules.
+
+The frontend must display only slots returned by the backend.
+
+### 9.10 Individual Session Restrictions
+
+Individual sessions must respect:
+
+- Minimum booking notice of 3 days.
+- Session duration of 60 minutes.
+- Configured working hours.
+- Selected modality availability.
+- Existing reservations.
+- Availability blocks.
+
+The backend must reject any individual reservation that violates these restrictions.
+
+### 9.11 Package Session Restrictions
+
+Every session in a package must respect:
+
+- Minimum booking notice of 7 days.
+- Maximum booking horizon of 1 month.
+- Session duration of 60 minutes.
+- Configured working hours.
+- Selected modality availability.
+- Existing reservations.
+- Availability blocks.
+
+The backend must validate every selected package session independently.
+
+All package time slots must be allocated atomically.
+
+### 9.12 Reservation Conflicts
+
+The availability system must prevent:
+
+- Double bookings.
+- Overlapping sessions.
+- Reservations during blocked periods.
+- Reservations outside working hours.
+- Reservations with unsupported modalities.
+- Conflicts caused by simultaneous booking requests.
+
+Critical availability checks and reservation allocation must be performed using secure database transactions or equivalent atomic operations.
+
+### 9.13 Availability Updates
+
+When Farah changes her working hours or creates an availability block:
+
+- Future availability must be recalculated.
+- Newly unavailable slots must no longer be offered.
+- Existing reservations must remain protected.
+- Conflicts with existing reservations must be identified.
+- The system must not silently remove confirmed reservations.
+
+Changes must be recorded in the administrative audit log.
+
+### 9.14 Calendar Interface
+
+The admin dashboard must include a calendar where Farah can:
+
+- View upcoming sessions.
+- View confirmed reservations.
+- Identify pending reservations.
+- View blocked periods.
+- Create availability blocks.
+- Modify working hours.
+- Navigate between dates.
+- Identify reservation conflicts.
+
+The calendar must distinguish clearly between reservations and unavailable periods.
+
+### 9.15 Timezone Management
+
+The official timezone is:
+
+Africa/Maputo
+
+The system must:
+
+- Store timestamps consistently.
+- Display dates and times in the business timezone.
+- Calculate booking deadlines correctly.
+- Calculate availability correctly.
+- Avoid timezone conversion errors.
+- Handle daylight-saving changes where applicable.
+
+### 9.16 Security and Permissions
+
+Only authorized administrators may:
+
+- Create availability blocks.
+- Modify availability blocks.
+- Delete availability blocks.
+- Configure working hours.
+- Change modality availability.
+- Modify temporary schedules.
+
+Clients may only view available time slots and select them during the booking process.
+
+Clients must never directly modify availability records.
+
+All administrative availability operations must be validated by the backend and recorded in the audit log.
+
+### 9.17 Pending Availability Decisions
+
+The following details require confirmation from Farah:
+
+- Final weekly working hours.
+- Specific online and in-person working periods.
+- Break durations, if fixed.
+- Whether any days should always remain unavailable.
+- Whether different services will require different session durations in the future.
+
 ## 10. Notifications and Reminders
 
 ## 11. Authentication and Security
