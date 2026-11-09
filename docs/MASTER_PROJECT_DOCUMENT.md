@@ -3333,6 +3333,21 @@ Before creating a reservation, the backend must validate:
 
 The backend must revalidate availability at the moment of allocation.
 
+Additional mandatory booking validations:
+
+- Individual sessions must be scheduled at least 72 hours in advance.
+- Every session must have an exact duration of 60 minutes.
+- A mandatory 10-minute break must be respected between consecutive sessions.
+- Package sessions must be scheduled at least 7 days and no more than 1 month in advance.
+- Sunday must remain permanently unavailable, with no administrative override.
+- Saturday and special weekday hours must require prior Farah approval.
+- Approval of a special-hour request must never automatically reserve or hold a session slot.
+- The backend must enforce the one-active-individual-reservation-per-client restriction.
+- Rescheduling must respect the applicable 24-hour restriction and the booking window of the reservation type.
+- Package scheduling and rescheduling must validate the package status, remaining sessions and validity period.
+- Existing confirmed reservations must not be silently cancelled or moved when availability rules, overrides or blocks change.
+- All booking restrictions must be enforced server-side, regardless of frontend validation.
+
 ### 13.5 Reservation Creation
 
 The system must provide separate backend workflows for individual reservations and package reservations.
