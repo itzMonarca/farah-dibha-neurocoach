@@ -2273,6 +2273,271 @@ The following details must be confirmed before production:
 
 ## 11. Authentication and Security
 
+### 11.1 General Security Principles
+
+The platform must follow security best practices and the principle of least privilege.
+
+All sensitive operations must be validated by the backend.
+
+The system must protect:
+
+- Client personal information.
+- Reservation information.
+- Payment records.
+- Payment proofs.
+- Administrative accounts.
+- Database records.
+- Private application credentials.
+
+### 11.2 Authentication Architecture
+
+Supabase Auth will provide the authentication infrastructure.
+
+The system must distinguish between:
+
+1. Public visitors.
+2. Clients using reservation recovery.
+3. Authorized administrators.
+
+Clients will not require permanent password-based accounts for the initial booking system.
+
+Client reservation recovery must use SMS OTP as defined in Section 8.
+
+### 11.3 Administrator Authentication
+
+Farah must have a private administrator account.
+
+Administrative access must require authentication.
+
+The system must:
+
+- Prevent public registration as an administrator.
+- Verify administrator permissions on the server.
+- Protect administrative routes.
+- Reject unauthorized administrative operations.
+- Expire or invalidate sessions according to secure authentication policies.
+
+The administrator role must never be assigned automatically to a newly registered user.
+
+### 11.4 Initial Authentication Configuration
+
+During development and initial setup:
+
+- Email authentication may be enabled for administrator account creation and testing.
+- Email confirmation must remain enabled.
+- Phone authentication through Supabase Auth must remain disabled unless a specific future requirement justifies enabling it.
+- Public signups must be disabled before production launch once the administrator account has been created and verified.
+
+The client SMS OTP reservation recovery process is separate from Supabase Auth phone authentication.
+
+### 11.5 Role-Based Access Control
+
+The platform must use role-based access control.
+
+The backend must verify the user's identity and permissions before allowing access to protected resources.
+
+Administrative permissions must be stored and validated securely.
+
+A user must never gain administrator permissions by modifying frontend data or sending a manipulated request.
+
+### 11.6 Supabase Row Level Security
+
+Row Level Security (RLS) must be enabled on all tables containing private or sensitive information.
+
+Policies must explicitly define:
+
+- Who can read records.
+- Who can insert records.
+- Who can update records.
+- Who can delete records.
+
+Public access must be denied by default for sensitive tables.
+
+Administrative operations must be restricted to authenticated and authorized administrators.
+
+Client access must be limited to records associated with their verified identity.
+
+### 11.7 Server-Side Authorization
+
+All critical operations must pass through trusted server-side logic.
+
+This includes:
+
+- Creating reservations.
+- Rescheduling sessions.
+- Cancelling reservations.
+- Submitting payment proofs.
+- Confirming payments.
+- Rejecting payments.
+- Managing availability.
+- Managing packages.
+- Managing administrative permissions.
+
+The backend must never trust a client-provided role, reservation status, payment status or price without independent validation.
+
+### 11.8 Supabase API Keys
+
+The application must distinguish between public and secret credentials.
+
+The Supabase publishable key may be used in public frontend code according to the configured RLS policies.
+
+The Supabase secret key or legacy service role key must remain server-side only.
+
+Secret credentials must never be:
+
+- Exposed in frontend JavaScript.
+- Committed to GitHub.
+- Included in public files.
+- Sent to clients.
+- Stored in browser-accessible configuration.
+
+### 11.9 Environment Variables
+
+Sensitive configuration must be stored in environment variables.
+
+Proposed variables include:
+
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY or the appropriate Supabase publishable key.
+- SUPABASE_SERVICE_ROLE_KEY or the appropriate secret key.
+- SMS provider credentials.
+- Email provider credentials.
+- WhatsApp provider credentials.
+
+Only values explicitly intended for public use may use the NEXT_PUBLIC_ prefix.
+
+Production secrets must be configured securely in the hosting environment.
+
+### 11.10 Payment Proof Protection
+
+Payment proof files must be stored in a private Supabase Storage bucket.
+
+Access must be authorized through secure backend validation.
+
+Public URLs must never expose private payment proof files.
+
+File access must verify reservation ownership or administrator authorization.
+
+### 11.11 OTP Security
+
+The SMS OTP recovery system must implement:
+
+- Secure random code generation.
+- Hashed OTP storage.
+- Expiration.
+- Maximum verification attempts.
+- Rate limiting.
+- Resend restrictions.
+- Single-use verification.
+- Previous code invalidation.
+- Protection against brute-force attacks.
+- Protection against phone number enumeration.
+
+OTP codes must never be stored in plaintext.
+
+### 11.12 Input Validation
+
+All user-submitted data must be validated on the backend.
+
+Validation must cover:
+
+- Phone numbers.
+- Email addresses.
+- Names.
+- Dates and times.
+- Reservation identifiers.
+- Payment amounts.
+- Uploaded files.
+- Institutional request forms.
+- Review submissions.
+
+The system must reject malformed, unexpected or unauthorized data.
+
+### 11.13 Protection Against Common Attacks
+
+The application must implement appropriate protection against:
+
+- SQL injection.
+- Cross-Site Scripting (XSS).
+- Cross-Site Request Forgery (CSRF), where applicable.
+- Brute-force attacks.
+- Unauthorized API access.
+- Insecure direct object references.
+- Credential leakage.
+- Malicious file uploads.
+- Duplicate request submissions.
+- Abuse of OTP and notification endpoints.
+
+The application must use secure dependencies and keep them updated.
+
+### 11.14 Administrative Session Security
+
+Administrative sessions must follow secure session management practices.
+
+The system must:
+
+- Protect authentication cookies.
+- Use HTTPS in production.
+- Prevent unauthorized session reuse.
+- Support secure logout.
+- Reject expired or invalid sessions.
+- Protect administrative pages against unauthorized access.
+
+### 11.15 Audit Logging
+
+Important security and administrative events must be recorded.
+
+These include:
+
+- Administrative login events.
+- Payment decisions.
+- Reservation modifications.
+- Availability changes.
+- Permission changes.
+- Important configuration changes.
+- Failed sensitive operations, where appropriate.
+
+Audit logs must not be editable by ordinary clients.
+
+### 11.16 Data Protection
+
+The system must collect only information necessary to operate the service.
+
+Private client information must not be exposed through public website pages or public database queries.
+
+The platform must define appropriate data retention, deletion and privacy procedures before production launch.
+
+### 11.17 Security Testing
+
+Before production deployment, the system must be tested for:
+
+- Unauthorized administrative access.
+- Incorrect RLS policies.
+- Unauthorized reservation access.
+- Payment proof exposure.
+- OTP abuse.
+- Reservation manipulation.
+- Payment status manipulation.
+- Secret key exposure.
+- Unauthorized database operations.
+
+Critical security tests must pass before the website becomes publicly available.
+
+### 11.18 Security Configuration Review
+
+The final security configuration must be reviewed before launch.
+
+This review must include:
+
+- Supabase Auth settings.
+- Database permissions.
+- RLS policies.
+- Storage policies.
+- Server-side secrets.
+- API authorization.
+- Administrative access.
+- Production environment variables.
+
 ## 12. Database Architecture
 
 ## 13. Backend Architecture
