@@ -4597,6 +4597,262 @@ The core reservation, payment and scheduling systems must remain operational eve
 
 ## 17. Privacy and Data Protection
 
+### 17.1 General Principles
+
+The platform must protect the privacy and personal information of clients, administrators and other website users.
+
+The system must follow these principles:
+
+- Data minimization.
+- Purpose limitation.
+- Secure data processing.
+- Restricted access.
+- Transparency.
+- Data accuracy.
+- Appropriate retention.
+- Protection against unauthorized disclosure.
+- Privacy by design.
+
+Only information necessary for the operation of the business must be collected.
+
+### 17.2 Personal Information Collected
+
+The platform may collect:
+
+- Client full name.
+- Client phone number.
+- Optional email address.
+- Reservation information.
+- Session dates and times.
+- Session modality.
+- Payment information.
+- Payment proof files.
+- Client reviews.
+- Institutional contact information.
+- Technical information required for security and operation.
+
+The system must not collect unnecessary personal information.
+
+### 17.3 Sensitive Information
+
+The platform provides non-clinical neurocoaching, psychoeducation and personal development services.
+
+The system must avoid collecting unnecessary medical, psychological or other sensitive personal information.
+
+Clients must not be encouraged to submit confidential health information through ordinary booking or contact forms.
+
+If sensitive information becomes necessary for a legitimate service-related purpose, its collection, storage, access and retention must be reviewed separately.
+
+### 17.4 Data Access and Permissions
+
+Personal information must only be accessible to authorized users.
+
+Requirements:
+
+- Public visitors cannot access private client records.
+- Clients can only access their own verified reservations.
+- Clients cannot access another client's payment information.
+- Only authorized administrators can access administrative records.
+- Payment proof files must remain private.
+- OTP recovery information must never be publicly accessible.
+- Audit logs must be restricted to authorized administrators.
+
+Access must be enforced through backend authorization and database security policies.
+
+### 17.5 Payment Data Protection
+
+The platform must not store:
+
+- M-Pesa account passwords.
+- Banking passwords.
+- Payment provider authentication secrets.
+- Unnecessary financial account information.
+
+Payment proof files must be stored in private storage.
+
+Only the associated client and authorized administrators may access the appropriate proof files.
+
+Payment records must preserve relevant transaction and verification history.
+
+### 17.6 Authentication and Recovery Data
+
+Authentication and reservation recovery information must be protected.
+
+Requirements:
+
+- OTP codes must never be stored in plaintext.
+- Recovery codes must expire.
+- Verification attempts must be limited.
+- Recovery requests must be rate-limited.
+- Authentication secrets must never appear in application logs.
+- Administrative sessions must use secure authentication mechanisms.
+
+### 17.7 Data Transmission Security
+
+The application must use HTTPS for communication.
+
+Sensitive information must not be transmitted through insecure connections.
+
+External service integrations must use secure communication protocols.
+
+### 17.8 Data Storage Security
+
+The platform must use appropriate security controls.
+
+Requirements:
+
+- Supabase Row Level Security.
+- Private storage for payment proofs.
+- Restricted database permissions.
+- Secure environment variables.
+- No secret credentials in GitHub.
+- Secure backups where supported.
+- Restricted administrative access.
+- Appropriate database access controls.
+
+### 17.9 Data Retention
+
+The platform must define retention periods for:
+
+- Client records.
+- Reservations.
+- Payment records.
+- Payment proofs.
+- OTP recovery records.
+- Notifications.
+- Delivery attempts.
+- Reviews.
+- Institutional requests.
+- Audit logs.
+
+Data must not be retained indefinitely without a legitimate reason.
+
+Retention periods and deletion procedures must be reviewed before production launch.
+
+Financial records may require different retention periods from temporary authentication or notification data.
+
+### 17.10 Data Correction and Deletion Requests
+
+The system must provide a process for clients to request:
+
+- Access to their personal information.
+- Correction of inaccurate information.
+- Deletion of eligible personal information.
+- Clarification about how their information is used.
+
+Requests must be reviewed by an authorized administrator.
+
+Deletion must consider legal obligations, financial record retention and the integrity of historical reservations.
+
+### 17.11 Client Consent and Transparency
+
+The website must provide clear information about:
+
+- Information collected.
+- Why information is collected.
+- How reservation information is used.
+- How payment proofs are processed.
+- How notifications are sent.
+- Which external providers may process information.
+- How clients can contact Farah about privacy matters.
+
+Consent must be obtained where legally required.
+
+The website must not use misleading consent mechanisms.
+
+### 17.12 Reviews and Testimonials
+
+Client reviews must only be published under the approved consent and moderation process.
+
+Requirements:
+
+- Reviews must be linked to eligible completed sessions.
+- Clients must understand whether their review will be public.
+- Consent to publish must be recorded.
+- Private feedback must remain private.
+- Images, videos or identifiable testimonials require appropriate authorization.
+
+### 17.13 External Provider Privacy
+
+External providers may include:
+
+- Supabase.
+- Vercel.
+- SMS providers.
+- WhatsApp.
+- Email delivery providers.
+- Future payment providers.
+
+Before integrating a provider, review:
+
+- What information it receives.
+- Why the information is required.
+- Where information is processed.
+- Its privacy and security practices.
+- Its data retention policies.
+- Its applicable contractual terms.
+
+Only the minimum necessary information must be shared.
+
+### 17.14 Cookies and Tracking
+
+The website must use cookies and similar technologies only when necessary or appropriately disclosed.
+
+Authentication cookies must be handled securely.
+
+Non-essential analytics or marketing tracking must not be introduced without reviewing applicable consent requirements.
+
+### 17.15 Data Breach Response
+
+The project must define a process for handling suspected data breaches.
+
+The process must include:
+
+- Identifying the incident.
+- Restricting unauthorized access.
+- Protecting affected systems.
+- Preserving relevant logs.
+- Assessing affected information.
+- Taking corrective action.
+- Documenting the incident.
+- Evaluating notification obligations.
+
+### 17.16 Legal and Regulatory Review
+
+Before production launch, review applicable Mozambican laws and regulations concerning:
+
+- Personal data protection.
+- Electronic communications.
+- Consumer rights.
+- Electronic transactions.
+- Financial records.
+- External data processing.
+
+The final privacy policy, terms of service and consent wording must be reviewed before publication.
+
+The platform must not claim legal compliance without an appropriate review.
+
+### 17.17 Privacy Testing
+
+Before launch, test:
+
+- Unauthorized access to client records.
+- Unauthorized access to payment proofs.
+- Client ownership restrictions.
+- Administrative access restrictions.
+- OTP information protection.
+- Secure file access.
+- Data deletion procedures.
+- Data correction procedures.
+- External information sharing.
+- Secure transmission.
+
+### 17.18 Implementation Rule
+
+Privacy and data protection must be considered throughout the development process.
+
+The system must collect only necessary information, restrict access appropriately and protect client confidentiality.
+
 ## 18. Testing Strategy
 
 ## 19. Deployment
