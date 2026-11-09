@@ -2634,55 +2634,12 @@ Requirements:
 
 ### 12.5 Availability Tables
 
+The official availability tables are:
+- availability_rules
+- availability_blocks
+- availability_overrides
+
 #### A. availability_rules
-ADD THE FOLLOWING DATABASE TABLE TO
-SECTION 12.5 — AVAILABILITY TABLES.
-
-C. availability_overrides
-
-This table must manage temporary changes to
-Farah's regular working schedule.
-
-It must support:
-
-- Opening additional working hours on specific dates.
-- Reducing regular working hours on specific dates.
-- Creating exceptional working periods.
-- Modifying availability without permanently
-  changing the weekly schedule.
-
-Each record must include:
-
-- id
-- title or description
-- override_type
-- start_at
-- end_at
-- modality, when applicable
-- created_by
-- created_at
-- updated_at
-
-The system must distinguish between temporary
-periods that open availability and periods that
-reduce availability.
-
-All overrides must be validated against:
-- Existing reservations.
-- Pending reservation holds.
-- Availability blocks.
-- Standard working-hour restrictions.
-- The permanent Sunday closure.
-
-Overrides must never automatically cancel or
-move existing reservations.
-
-Add availability_overrides to the official
-database table list and include it in the
-database migration plan.
-
-Do not modify unrelated database structures
-or existing booking rules.
 
 Stores Farah's regular working schedule.
 
@@ -2731,6 +2688,33 @@ Requirements:
 - Must support breaks, holidays and vacations.
 - Must prevent new reservations during blocked periods.
 - Must detect conflicts with existing reservations before a block is created.
+
+#### C. availability_overrides
+
+Stores temporary changes to Farah's regular working schedule without permanently modifying the weekly schedule.
+
+Suggested fields:
+
+- id
+- title or description
+- override_type
+- start_at
+- end_at
+- modality, when applicable
+- created_by
+- created_at
+- updated_at
+
+Requirements:
+
+- Must support opening additional working hours on specific dates.
+- Must support reducing regular working hours on specific dates.
+- Must support creating exceptional working periods.
+- Must distinguish between overrides that open additional availability and overrides that reduce availability.
+- Must validate overrides against existing reservations, pending reservation holds, availability blocks, standard working-hour restrictions and the permanent Sunday closure.
+- Must never automatically cancel or move existing reservations.
+- Must detect conflicts and require an explicit administrative decision where necessary.
+- Must preserve historical records.
 
 ### 12.6 Notification Tables
 
@@ -2995,7 +2979,7 @@ Proposed migration sequence:
 - 003_core_tables.sql
 - 004_reservation_tables.sql
 - 005_payment_tables.sql
-- 006_availability_tables.sql
+- 006_availability_tables.sql (creates availability_rules, availability_blocks and availability_overrides)
 - 007_notification_tables.sql
 - 008_security_functions.sql
 - 009_rls_policies.sql
