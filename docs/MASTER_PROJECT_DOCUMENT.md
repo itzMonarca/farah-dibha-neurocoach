@@ -2580,7 +2580,17 @@ Requirements:
 - Session completion must not automatically complete the entire package.
 
 The database must enforce the required session count for each package before the reservation can become confirmed.
+Package session count enforcement:
 
+- The database must guarantee that every package reservation contains exactly the number of child sessions defined by its package.
+- Essential must contain exactly 4 sessions.
+- Transformation must contain exactly 8 sessions.
+- Evolution must contain exactly 12 sessions.
+- An individual reservation must contain exactly one scheduled session.
+- The parent reservation, all required child sessions and the associated payment record must be created within one database transaction.
+- The transaction must not commit if the required session count or parent-child relationships are incorrect.
+- This validation must be enforced through a trusted database-level mechanism, such as a deferred constraint trigger or an authorized database function.
+- Direct client operations must not be able to bypass these integrity rules.
 ### 12.4 Payment Tables
 
 #### A. payments
