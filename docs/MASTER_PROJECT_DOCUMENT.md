@@ -3128,6 +3128,508 @@ The final database schema must be consistent with every business rule defined in
 
 ## 13. Backend Architecture
 
+### 13.1 General Architecture
+
+The backend will use a server-first architecture based on:
+
+- Next.js with TypeScript.
+- Supabase PostgreSQL.
+- Supabase Auth.
+- Supabase Storage.
+- Supabase Edge Functions.
+- PostgreSQL database functions and transactions.
+- Supabase Cron or an equivalent scheduled execution mechanism.
+
+The backend must be responsible for enforcing all business rules, validating requests, protecting sensitive information and coordinating critical operations.
+
+The frontend must never be treated as a trusted source for business-critical decisions.
+
+### 13.2 Backend Responsibilities
+
+The backend must manage:
+
+- Client information.
+- Reservation creation.
+- Individual session scheduling.
+- Package scheduling.
+- Availability validation.
+- Temporary slot allocation.
+- Reservation expiration.
+- Payment proof submissions.
+- Manual payment verification.
+- Reservation cancellation.
+- Session rescheduling.
+- Package session tracking.
+- Notification scheduling.
+- Reminder delivery.
+- SMS OTP reservation recovery.
+- Review eligibility.
+- Institutional requests.
+- Administrative operations.
+- Audit logging.
+
+### 13.3 Backend Architecture Layers
+
+The system must separate responsibilities into the following layers.
+
+#### A. Next.js Server Layer
+
+Responsible for:
+
+- Receiving website requests.
+- Server-side validation.
+- Calling authorized backend operations.
+- Managing secure authentication sessions.
+- Rendering protected administrative pages.
+- Handling public website submissions.
+- Returning appropriate responses.
+
+Sensitive operations must never depend exclusively on browser-side code.
+
+#### B. Supabase Database Layer
+
+Responsible for:
+
+- Persistent data storage.
+- Relational integrity.
+- Database constraints.
+- Row Level Security.
+- Transactional operations.
+- Atomic reservation allocation.
+- Atomic package expiration.
+- Preventing double bookings.
+- Protecting historical records.
+
+#### C. Supabase Edge Functions Layer
+
+Responsible for specialized backend operations such as:
+
+- Reservation processing.
+- Payment processing.
+- OTP recovery.
+- Notification delivery.
+- Scheduled reminder processing.
+- Reservation expiration.
+- External service integrations.
+
+#### D. Scheduled Jobs Layer
+
+Responsible for executing operations at specific times, even when the website is closed.
+
+Examples:
+
+- Expiring unpaid reservations.
+- Sending session reminders.
+- Processing scheduled notifications.
+- Retrying eligible failed notification attempts.
+- Monitoring operational failures.
+
+### 13.4 Critical Booking Operations
+
+All critical booking operations must be processed securely on the backend.
+
+The system must never trust availability information calculated only by the frontend.
+
+Before creating a reservation, the backend must validate:
+
+- Offer availability.
+- Client information.
+- Booking notice requirements.
+- Session duration.
+- Modality.
+- Working hours.
+- Availability blocks.
+- Existing reservations.
+- Temporary holds.
+- Package session requirements.
+- Client booking restrictions.
+
+The backend must revalidate availability at the moment of allocation.
+
+### 13.5 Reservation Creation
+
+The system must provide separate backend workflows for individual reservations and package reservations.
+
+#### A. Individual Reservation
+
+The operation must:
+
+1. Validate the client and selected offer.
+2. Validate the 3-day minimum booking notice.
+3. Validate the selected date and time.
+4. Validate the selected modality.
+5. Check existing reservations and temporary holds.
+6. Check the one-active-individual-reservation restriction.
+7. Atomically allocate the selected time slot.
+8. Create the parent reservation.
+9. Create its scheduled session.
+10. Create the associated payment record.
+11. Set the payment deadline to exactly 24 hours.
+12. Return the provisional reservation details.
+13. Schedule any applicable payment notifications.
+
+The entire operation must either succeed or fail without leaving incomplete records or occupied slots.
+
+#### B. Package Reservation
+
+The operation must:
+
+1. Validate the selected package.
+2. Validate the required number of sessions.
+3. Receive all selected session dates and times.
+4. Validate every session individually.
+5. Enforce the 7-day minimum and 1-month maximum booking window.
+6. Validate all modalities.
+7. Check all existing reservations and temporary holds.
+8. Atomically allocate every selected time slot.
+9. Create one parent package reservation.
+10. Create all required child reservation sessions.
+11. Create one associated package payment record.
+12. Set the payment deadline to exactly 96 hours.
+13. Return the complete provisional package reservation.
+14. Schedule any applicable payment notifications.
+
+If even one session cannot be allocated, the entire operation must fail.
+
+No partial package reservation may remain.
+
+### 13.6 Atomicity and Concurrency Protection
+
+Critical operations must use database transactions and appropriate concurrency controls.
+
+The following operations must be atomic:
+
+- Individual reservation creation.
+- Package reservation creation.
+- Individual session rescheduling.
+- Package session rescheduling.
+- Reservation expiration.
+- Package expiration.
+- Payment confirmation when it affects reservation allocation.
+
+The system must prevent:
+
+- Double booking.
+- Duplicate reservations from repeated requests.
+- Partial package allocation.
+- Simultaneous conflicting rescheduling.
+- Payment confirmation after reservation expiration.
+- Expiration of an already confirmed reservation.
+
+The implementation must use appropriate database constraints, transactions, locking and idempotency mechanisms.
+
+### 13.7 Reservation Expiration
+
+A scheduled backend process must identify unpaid reservations whose payment deadlines have passed.
+
+Individual reservations:
+
+- Payment deadline: 24 hours.
+- Expire if payment has not been manually confirmed.
+- Release the associated session slot.
+
+Package reservations:
+
+- Payment deadline: 96 hours.
+- Expire the entire parent reservation.
+- Release every child session slot atomically.
+- Cancel all pending reminders associated with the expired package sessions.
+
+The expiration process must be safe to execute repeatedly.
+
+It must never expire confirmed reservations.
+
+If expiration and payment confirmation occur simultaneously, database-level concurrency protection must ensure that only one valid outcome is committed.
+
+### 13.8 Payment Processing
+
+The backend must support manual M-Pesa payment verification initially and allow future integration with Volet.
+
+Payment workflow:
+
+1. Client receives payment instructions.
+2. Client makes the payment externally.
+3. Client submits payment proof.
+4. Backend validates the file and reservation.
+5. Backend records the proof submission.
+6. Farah receives an operational notification.
+7. Farah reviews the payment.
+8. Farah confirms or rejects the payment.
+9. Backend validates the reservation status and payment deadline.
+10. Backend updates the payment and reservation consistently.
+11. Backend schedules or cancels relevant notifications.
+
+Uploading payment proof must never confirm payment automatically.
+
+Payment confirmation must be an authorized administrative operation.
+
+A rejected payment must retain the original payment deadline.
+
+### 13.9 Session Rescheduling
+
+Rescheduling must be performed through a dedicated backend operation.
+
+The backend must:
+
+1. Authenticate and identify the requesting client.
+2. Verify ownership of the reservation.
+3. Verify that the session is eligible for rescheduling.
+4. Enforce the 24-hour restriction.
+5. Validate the new date and time.
+6. Validate availability and modality.
+7. Check conflicting reservations and temporary holds.
+8. Atomically allocate the new slot and release the old slot.
+9. Update the session schedule.
+10. Cancel outdated reminders.
+11. Create the three new reminders.
+12. Notify the client and Farah.
+13. Record the operation in the audit log.
+
+If the new slot is unavailable, the original session must remain unchanged.
+
+For packages, only the affected child session must be rescheduled. Other package sessions must remain unchanged.
+
+Rescheduling must not require manual approval from Farah.
+
+### 13.10 Cancellation
+
+The backend must validate cancellation requests.
+
+Requirements:
+
+- Client cancellation is allowed only until 24 hours before the affected session.
+- Cancellation inside the 24-hour window must be rejected.
+- Unauthorized users cannot cancel another client's reservation.
+- Cancellation must update the appropriate reservation or session records.
+- Associated pending reminders must be cancelled.
+- Farah must receive an operational notification.
+- The operation must be recorded in the audit log.
+
+Package cancellation and refund consequences must follow the final business policy, which remains pending confirmation.
+
+### 13.11 Availability Calculation
+
+A dedicated backend operation must calculate available appointment slots.
+
+It must consider:
+
+- Regular working schedules.
+- Temporary schedule changes.
+- Availability blocks.
+- Existing confirmed sessions.
+- Temporary reservation holds.
+- Session duration.
+- Modality.
+- Minimum booking notice.
+- Package scheduling window.
+- Timezone Africa/Maputo.
+
+The frontend must display availability returned by the backend.
+
+The backend must always revalidate the selected slot before allocation.
+
+### 13.12 Notification Processing
+
+Notifications must be managed independently from reservation operations.
+
+The backend must support:
+
+- Email notifications.
+- SMS notifications.
+- WhatsApp notifications.
+
+The actual providers will be selected later.
+
+The system must distinguish between logical notifications and individual delivery attempts.
+
+A notification delivery failure must never reverse a valid reservation or payment operation.
+
+### 13.13 Reminder Scheduling
+
+Every confirmed individual session must generate three reminders for both the client and Farah:
+
+- 24 hours before.
+- 1 hour before.
+- Exactly at the scheduled start time.
+
+Every confirmed package child session must receive its own independent reminder schedule.
+
+The system must not create a 30-minute reminder.
+
+When a session is rescheduled:
+
+- Cancel its old reminders.
+- Create three new reminders.
+- Preserve reminders belonging to unaffected package sessions.
+
+When a session or reservation is cancelled or expired, its pending reminders must be cancelled.
+
+Reminder processing must be idempotent and prevent duplicate deliveries.
+
+### 13.14 OTP Reservation Recovery
+
+The backend must provide secure reservation recovery using SMS OTP.
+
+The process must:
+
+1. Receive the client's phone number.
+2. Identify eligible reservations without revealing whether a number exists.
+3. Generate a secure random code.
+4. Store only the hashed code.
+5. Send the code through the selected SMS provider.
+6. Verify the submitted code.
+7. Enforce expiration and attempt limits.
+8. Invalidate previous codes when a new code is issued.
+9. Mark successfully verified codes as consumed.
+10. Grant access only to the appropriate reservation information.
+
+OTP recovery must be protected by rate limiting and abuse prevention.
+
+### 13.15 Review Submission
+
+The backend must verify that:
+
+- The client owns the referenced session.
+- The session is completed.
+- The client is eligible to review it.
+- A duplicate review does not already exist.
+
+Reviews must enter the moderation process before public publication.
+
+### 13.16 Institutional Request Processing
+
+The backend must:
+
+- Validate submitted information.
+- Protect against spam and automated abuse.
+- Store requests securely.
+- Notify Farah about new submissions.
+- Allow authorized administrative review.
+- Maintain request status and history.
+
+### 13.17 Proposed Backend Functions
+
+The following operations are proposed for implementation.
+
+#### Reservation Operations
+
+- create-individual-reservation
+- create-package-reservation
+- get-available-slots
+- reschedule-session
+- cancel-reservation
+- expire-reservations
+
+#### Payment Operations
+
+- submit-payment-proof
+- review-payment
+- process-payment-expiration
+
+#### Recovery Operations
+
+- request-reservation-recovery
+- verify-recovery-code
+
+#### Notification Operations
+
+- schedule-session-reminders
+- process-reminders
+- send-notification
+- retry-failed-notifications
+
+#### Administrative Operations
+
+- manage-availability
+- manage-offers
+- manage-reservations
+- manage-reviews
+- manage-institutional-requests
+
+The final implementation may use Next.js server routes, Supabase Edge Functions, PostgreSQL functions or a combination of these.
+
+Function boundaries must be chosen according to security, transactional requirements and maintainability.
+
+### 13.18 Idempotency and Duplicate Request Protection
+
+Critical operations must support idempotency where appropriate.
+
+Repeated requests caused by:
+
+- Network interruptions.
+- Browser refreshes.
+- Double clicks.
+- Provider retries.
+- Scheduled job retries.
+
+Must not create duplicate reservations, payments, reminders or administrative actions.
+
+The backend must distinguish between a legitimate new operation and a repeated request.
+
+### 13.19 Error Handling and Logging
+
+The backend must:
+
+- Return clear and safe error responses.
+- Avoid exposing internal database errors to clients.
+- Log important operational failures.
+- Preserve useful debugging information.
+- Avoid logging passwords, OTP plaintext or payment secrets.
+- Record critical administrative operations.
+- Support safe retries where appropriate.
+
+### 13.20 Backend Security
+
+All critical operations must enforce:
+
+- Authentication where required.
+- Authorization and role checks.
+- Input validation.
+- Database constraints.
+- RLS.
+- Rate limiting where appropriate.
+- Secure secret management.
+- Protection against unauthorized data access.
+- Server-side verification of prices, payments and reservation status.
+
+Supabase secret/service-role credentials must never be exposed to the browser or committed to GitHub.
+
+### 13.21 Backend Testing
+
+Before production deployment, the backend must be tested for:
+
+- Individual reservation creation.
+- Package reservation creation.
+- Minimum booking notice.
+- Package scheduling limits.
+- Payment deadlines.
+- Reservation expiration.
+- Atomic package expiration.
+- Payment confirmation and rejection.
+- Double-booking prevention.
+- Concurrent booking requests.
+- Concurrent rescheduling.
+- Session completion.
+- Package remaining session counts.
+- Reminder scheduling and cancellation.
+- OTP recovery.
+- Authorization and RLS.
+- Duplicate request protection.
+- Notification failures and retries.
+
+### 13.22 Implementation Rule
+
+No production backend code must be implemented until:
+
+1. The master project document has been completed.
+2. The database architecture has been reviewed.
+3. All critical business rules have been validated.
+4. Security boundaries have been designed.
+5. Transactional operations have been planned.
+6. External providers and integrations have been evaluated.
+
+The backend must implement the approved business rules consistently and must never silently weaken them for frontend convenience.
+
 ## 14. Frontend Architecture
 
 ## 15. Admin Dashboard
