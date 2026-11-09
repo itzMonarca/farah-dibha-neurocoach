@@ -1595,6 +1595,17 @@ The recovery process must use:
 5. System identifies eligible reservations associated with the verified phone number.
 6. Client accesses the relevant reservation.
 7. Client submits payment proof if the reservation is still eligible.
+8. Recovery Session Security
+
+- After successful OTP verification, the backend must create a short-lived, secure recovery session.
+- The recovery session must be cryptographically secure and must not expose reservation identifiers or sensitive information in the browser.
+- The session must only grant access to reservations associated with the verified phone number.
+- The session must have a configurable expiration period.
+- The session must be invalidated after expiration or explicit logout.
+- Recovery sessions must not grant administrative access or access to another client's information.
+- Every protected recovery request must validate the recovery session server-side.
+- The OTP must be marked as consumed when verification succeeds.
+- Reusing an OTP or an expired recovery session must be rejected.
 
 The recovery process must not expose reservation information before successful phone verification.
 
