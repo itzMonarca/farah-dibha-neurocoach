@@ -3154,6 +3154,29 @@ Before production use, the database must be tested for:
 - Correct reminder relationships.
 - Correct reservation recovery.
 
+Additional business-rule and failure testing:
+
+- Minimum 72-hour advance booking requirement for individual sessions.
+- Minimum 7-day and maximum 1-month scheduling window for package sessions.
+- Exact 24-hour individual payment deadline.
+- Exact 96-hour package payment deadline.
+- Expiration and slot release when payment is not manually confirmed before the deadline.
+- Prevention of multiple active individual reservations for the same client.
+- Correct package session counts: 4, 8 and 12 sessions.
+- Correct package validity and expiration behavior.
+- Correct handling of completed, cancelled and rescheduled package sessions.
+- Prevention of rescheduling inside the prohibited 24-hour window.
+- Correct reminder scheduling for both the client and Farah at 24 hours, 1 hour and exact session start time.
+- Cancellation of outdated reminders after rescheduling or expiration.
+- Prevention of duplicate payments, reviews and logical notifications.
+- Audit log protection against unauthorized modification or deletion.
+- Correct availability rules, temporary overrides and availability blocks.
+- Prevention of bookings during unavailable periods and mandatory breaks.
+- Protection against simultaneous booking and rescheduling requests.
+- Correct rollback behavior when any critical database transaction fails.
+- Verification that clients cannot access another client's records.
+- Verification that unauthorized users cannot perform administrative operations.
+
 ### 12.18 Important Implementation Rule
 
 No production SQL must be executed until:
