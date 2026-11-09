@@ -1418,6 +1418,323 @@ The following decisions still require confirmation:
 
 ## 8. Payment System
 
+### 8.1 General Payment Architecture
+
+The platform must support secure payment management for:
+
+- Individual sessions.
+- Essential packages.
+- Transformation packages.
+- Evolution packages.
+
+Every reservation must have an associated payment record.
+
+Payment processing must be separate from reservation management while maintaining a clear relationship between payments and reservations.
+
+### 8.2 Supported Payment Methods
+
+Initial payment method:
+
+- M-Pesa.
+
+Future payment method:
+
+- Volet.
+
+The architecture must allow additional payment methods to be integrated in the future without rebuilding the entire payment system.
+
+### 8.3 Payment Amounts
+
+Individual session:
+- 1,850 MZN.
+
+Essential:
+- 6,800 MZN.
+
+Transformation:
+- 12,950 MZN.
+
+Evolution:
+- 18,500 MZN.
+
+The amount associated with a reservation must be recorded when the reservation is created.
+
+Later price changes must not modify historical payment amounts.
+
+All monetary values must be stored using an appropriate exact numeric representation, never floating-point arithmetic.
+
+The currency is MZN.
+
+### 8.4 Payment Instructions
+
+After creating a provisional reservation, the client must receive payment instructions.
+
+The instructions must include:
+
+- Payment method.
+- Receiving number or account details.
+- Exact amount to pay.
+- Payment reference or identification instructions.
+- Instructions for submitting payment proof.
+
+The M-Pesa receiving number and final payment instructions must be configurable and require confirmation from Farah before publication.
+
+### 8.5 Payment Proof Submission
+
+The client must be able to upload payment proof through the website.
+
+Supported proof formats should include:
+
+- JPEG.
+- PNG.
+- PDF.
+
+The system must validate:
+
+- File type.
+- File size.
+- File integrity.
+- Reservation ownership.
+- Reservation payment status.
+- Applicable payment deadline.
+
+Uploading proof must not automatically confirm payment.
+
+### 8.6 Payment Proof Storage
+
+Payment proofs must be stored in a private Supabase Storage bucket.
+
+Proposed bucket:
+
+payment-proofs
+
+The bucket must not allow public access.
+
+Only the client associated with the reservation and authorized administrators may access the relevant proof.
+
+Access must use secure authorization and short-lived signed URLs or an equivalent protected server-side mechanism.
+
+Payment proof paths must not expose sensitive client information.
+
+### 8.7 Manual Payment Verification
+
+All payments must be manually reviewed by Farah.
+
+Farah must be able to:
+
+- View the payment proof.
+- View the associated reservation.
+- View the expected payment amount.
+- View the payment method.
+- Confirm the payment.
+- Reject the payment.
+- Record a rejection reason.
+- Review previous payment decisions.
+
+Only an authorized administrator may change a payment to confirmed.
+
+The system must never confirm payment simply because a file was uploaded.
+
+### 8.8 Payment Statuses
+
+The payment system must support the following statuses:
+
+- pending
+- proof_submitted
+- confirmed
+- rejected
+- expired
+- refunded
+
+The final status transitions must be validated by the backend.
+
+A rejected payment must remain subject to the original reservation payment deadline.
+
+### 8.9 Payment Deadlines
+
+Payment deadlines depend on the reservation type.
+
+Individual sessions:
+- 24 hours after provisional reservation creation.
+
+Packages:
+- 96 hours after provisional package reservation creation.
+
+The payment deadline must be calculated using the exact reservation creation timestamp.
+
+Uploading payment proof must not pause, reset or extend the deadline.
+
+### 8.10 Payment Expiration
+
+If Farah does not confirm payment before the applicable deadline:
+
+- The payment process must be marked expired.
+- The associated reservation must expire.
+- The reserved time slots must be released.
+- The client must be informed.
+- Pending payment verification must no longer permit confirmation.
+
+For packages, the entire package reservation and every selected session must expire together.
+
+The payment expiration process must be safe against simultaneous confirmation and expiration attempts.
+
+Only one valid final outcome may be applied.
+
+### 8.11 Reservation Recovery
+
+The website must include a reservation recovery feature for clients who need to return to an existing reservation and submit payment proof.
+
+The recovery process must use:
+
+1. Client enters the registered phone number.
+2. System sends an SMS one-time password (OTP).
+3. Client enters the received OTP.
+4. Backend validates the code.
+5. System identifies eligible reservations associated with the verified phone number.
+6. Client accesses the relevant reservation.
+7. Client submits payment proof if the reservation is still eligible.
+
+The recovery process must not expose reservation information before successful phone verification.
+
+Only reservations that are still eligible for payment recovery may be accessed for this purpose.
+
+### 8.12 OTP Security
+
+The OTP system must implement:
+
+- Secure code generation.
+- Secure code hashing before database storage.
+- Short expiration period.
+- Maximum verification attempts.
+- Rate limiting.
+- Resend restrictions.
+- Invalidation of previous codes when a new code is issued.
+- Single-use verification.
+- Protection against brute-force attempts.
+- Protection against phone number enumeration.
+
+Proposed database table:
+
+booking_recovery_codes
+
+Suggested fields:
+
+- id
+- reservation_id
+- phone_number
+- code_hash
+- expires_at
+- attempts
+- max_attempts
+- consumed_at
+- created_at
+
+The exact OTP expiration period and resend limits must be finalized during security architecture design.
+
+### 8.13 Payment History
+
+The system must preserve payment history.
+
+Each payment record should include:
+
+- Reservation identifier.
+- Payment method.
+- Expected amount.
+- Currency.
+- Payment status.
+- Proof storage reference.
+- Submission timestamp.
+- Verification timestamp.
+- Administrator who reviewed the payment.
+- Rejection reason, when applicable.
+
+Historical payment records must not be silently overwritten.
+
+Important payment changes must be recorded in the audit log.
+
+### 8.14 Payment Notifications
+
+The system must notify the relevant parties about important payment events.
+
+Client notifications:
+- Payment instructions.
+- Proof successfully received.
+- Payment confirmed.
+- Payment rejected.
+- Reservation payment expired.
+
+Farah notifications:
+- New reservation awaiting payment.
+- Payment proof submitted.
+- Payment deadline approaching, if a reminder schedule is approved.
+- Reservation payment expired.
+
+Payment reminder schedules remain pending confirmation.
+
+### 8.15 Future Volet Integration
+
+The architecture must allow Volet to become an additional payment method.
+
+The future integration may support:
+
+- Payment initiation.
+- Payment status verification.
+- Secure transaction references.
+- Payment confirmation through an authorized integration.
+- Transaction history.
+
+Before implementation, the official Volet API, payment capabilities, webhook support and integration requirements must be reviewed.
+
+The system must never trust an unverified client-side payment response.
+
+Any future automatic payment confirmation must rely on authenticated server-to-server verification or a verified payment webhook.
+
+### 8.16 Refund Management
+
+The database architecture must allow refunds to be recorded in the future.
+
+Refund handling must include:
+
+- Original payment reference.
+- Refund amount.
+- Refund status.
+- Refund date.
+- Reason.
+- Administrator responsible.
+
+The exact refund policy and refund process remain pending confirmation from Farah.
+
+### 8.17 Payment Security
+
+The payment system must guarantee:
+
+- Private payment proof storage.
+- Secure access authorization.
+- Manual M-Pesa payment verification.
+- No automatic confirmation after proof upload.
+- Immutable historical payment information.
+- Correct payment deadlines.
+- Protection against duplicate payment submissions.
+- Protection against unauthorized payment status changes.
+- Secure OTP recovery.
+- Audit logging for administrative payment decisions.
+
+All sensitive payment operations must be enforced by the backend.
+
+### 8.18 Pending Payment Decisions
+
+The following details require confirmation:
+
+- M-Pesa receiving number.
+- Final payment instructions.
+- OTP expiration duration.
+- OTP resend limits.
+- Payment reminder schedule for individual sessions.
+- Payment reminder schedule for packages.
+- Refund policy.
+- Future Volet integration requirements.
+- Whether clients may submit a replacement proof after a rejection without creating a new reservation.
+
 ## 9. Availability Management
 
 ## 10. Notifications and Reminders
