@@ -3083,6 +3083,21 @@ The database must enforce:
 
 Administrative privileges must never be granted based only on frontend information.
 
+Row Level Security and access control integrity:
+
+- RLS must be enabled on every table exposed through the Supabase Data API.
+- Every table with RLS enabled must have explicitly defined access policies.
+- Access must be denied by default when no policy explicitly grants permission.
+- Clients must only access records associated with their authenticated identity or a valid, restricted recovery session.
+- Clients must never access another client's reservations, sessions, payment records, payment proofs or personal information.
+- Only Farah's authorized administrator account may access administrative management functions.
+- Administrative authorization must be verified server-side using trusted authentication data and database-controlled permissions.
+- The Supabase service role key must never be exposed to the frontend or public repositories.
+- Security-definer database functions must use a fixed and safe search_path and enforce their own authorization checks.
+- Storage buckets containing payment proofs or private documents must remain private and enforce access restrictions.
+- RLS policies and database permissions must be tested using anonymous, authenticated client and administrator roles.
+- Any security policy change must be reviewed and tested before deployment.
+
 ### 12.16 Database Migrations
 
 All database structure changes must be version-controlled.
