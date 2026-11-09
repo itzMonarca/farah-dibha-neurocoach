@@ -3405,6 +3405,20 @@ If even one session cannot be allocated, the entire operation must fail.
 
 No partial package reservation may remain.
 
+Package reservation integrity and activation:
+
+- The package must contain exactly 4, 8 or 12 child sessions according to the selected package type.
+- Every child session must belong to the same client and parent package reservation.
+- Every child session must have an exact duration of 60 minutes.
+- Every selected session must independently satisfy availability, working-hour and mandatory break requirements.
+- The package validity period must not begin while payment is pending.
+- The package validity period must begin only after Farah manually confirms the payment.
+- Successful manual payment confirmation must activate the parent package reservation and all its child sessions consistently.
+- If payment is not confirmed within 96 hours, the entire provisional package must expire and all allocated slots must be released atomically.
+- All pending notifications associated with an expired package must be cancelled.
+- Repeated or concurrent package creation requests must not create duplicate parent reservations, child sessions or payment records.
+- The package creation process must preserve the all-or-nothing transaction guarantee, including payment record creation and initial notification scheduling.
+
 ### 13.6 Atomicity and Concurrency Protection
 
 Critical operations must use database transactions and appropriate concurrency controls.
