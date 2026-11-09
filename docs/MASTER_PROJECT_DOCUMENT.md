@@ -3986,6 +3986,335 @@ The interface must reflect the approved business architecture without introducin
 
 ## 15. Admin Dashboard
 
+### 15.1 General Overview
+
+The platform must provide a private administrative dashboard for Farah Dibha.
+
+The dashboard must allow Farah to manage the entire business through a secure interface without directly accessing Supabase.
+
+The dashboard must be responsive and optimized for mobile devices, especially iPhone.
+
+### 15.2 Dashboard Access
+
+Requirements:
+
+- Private administrator authentication.
+- Only explicitly authorized administrators may access the dashboard.
+- No public administrator registration.
+- Secure session management.
+- Automatic session expiration where appropriate.
+- Logout functionality.
+- Server-side authorization for every administrative operation.
+
+### 15.3 Dashboard Overview
+
+The main dashboard must display useful business information, including:
+
+- Today's scheduled sessions.
+- Upcoming sessions.
+- Pending reservations.
+- Pending payment reviews.
+- Confirmed payments.
+- Expiring reservations.
+- Active packages.
+- Remaining package sessions.
+- New institutional requests.
+- Pending reviews.
+- Notification delivery failures.
+
+The dashboard must present information clearly without unnecessary visual clutter.
+
+### 15.4 Reservation Management
+
+Farah must be able to:
+
+- View all reservations.
+- Search reservations.
+- Filter by date.
+- Filter by client.
+- Filter by reservation type.
+- Filter by payment status.
+- Filter by reservation status.
+- View reservation details.
+- View associated scheduled sessions.
+- View payment information.
+- View reservation history.
+
+Farah must be able to perform authorized administrative actions.
+
+All changes must be validated by the backend and recorded in the audit log.
+
+### 15.5 Individual Session Management
+
+The dashboard must allow Farah to:
+
+- View individual sessions.
+- View client details.
+- View session date and time.
+- View session modality.
+- View session status.
+- Mark sessions as completed.
+- View relevant payment information.
+- Review session history.
+
+Only completed sessions may become eligible for client reviews.
+
+### 15.6 Package Management
+
+Farah must be able to:
+
+- View all package reservations.
+- Identify the purchased package.
+- View the total number of sessions.
+- View all scheduled child sessions.
+- View completed sessions.
+- View remaining sessions.
+- View package payment status.
+- View package validity.
+- Review the package history.
+
+Completing one package session must not automatically complete the entire package.
+
+Only sessions explicitly marked as completed may reduce the remaining session count.
+
+### 15.7 Payment Management
+
+The payment management interface must allow Farah to:
+
+- View pending payments.
+- View submitted payment proofs.
+- Open authorized private proof files.
+- Review payment amounts.
+- Confirm payments.
+- Reject payments.
+- Record rejection reasons.
+- View payment history.
+- Filter payments by status and date.
+
+Payment confirmation and rejection must be processed securely by the backend.
+
+The dashboard must not allow payment confirmation after the reservation has expired.
+
+### 15.8 Availability Management
+
+Farah must be able to manage her working schedule.
+
+The interface must support:
+
+- Weekly working hours.
+- Different hours for each weekday.
+- Multiple working periods per day.
+- Online availability.
+- In-person availability.
+- Temporary schedule changes.
+- Breaks.
+- Holidays.
+- Vacation periods.
+- Full-day blocks.
+- Specific time blocks.
+- Multi-day blocks.
+
+Before saving a new availability block, the system must detect conflicts with existing reservations.
+
+Existing reservations must never be silently cancelled or moved.
+
+### 15.9 Calendar Management
+
+The dashboard must include a calendar interface.
+
+Requirements:
+
+- Daily view.
+- Weekly view.
+- Monthly view.
+- Upcoming sessions.
+- Individual session identification.
+- Package session identification.
+- Modality identification.
+- Reservation status.
+- Client information.
+- Availability blocks.
+
+The calendar must display times in Africa/Maputo timezone.
+
+### 15.10 Services and Package Management
+
+Farah must be able to manage available offers.
+
+The interface must support:
+
+- Creating offers.
+- Editing descriptions.
+- Changing prices.
+- Activating and deactivating offers.
+- Configuring session duration.
+- Configuring package session counts.
+- Configuring package validity.
+- Managing package descriptions.
+- Managing promotional labels.
+
+Changes must not alter historical reservation prices or purchased package information.
+
+### 15.11 Client Management
+
+The dashboard must allow Farah to:
+
+- View registered clients.
+- Search by name or phone number.
+- View client contact information.
+- View reservation history.
+- View package history.
+- View payment history.
+- View completed sessions.
+- View eligible reviews.
+
+Client information must remain private and accessible only to authorized administrators.
+
+### 15.12 Review Management
+
+Farah must be able to:
+
+- View submitted reviews.
+- View ratings.
+- Review written feedback.
+- Approve reviews.
+- Reject reviews.
+- Hide previously published reviews.
+- Manage publication status.
+
+Reviews must only be published when the required eligibility and consent conditions are satisfied.
+
+### 15.13 Institutional Request Management
+
+Farah must be able to:
+
+- View institutional requests.
+- View organization information.
+- View contact information.
+- View requested event details.
+- Change request status.
+- Add internal administrative notes.
+- Track request history.
+
+Possible statuses:
+
+- New.
+- Under review.
+- Contacted.
+- Proposal sent.
+- Accepted.
+- Rejected.
+- Completed.
+
+### 15.14 Notification Management
+
+The dashboard must provide visibility into notification activity.
+
+Farah must be able to:
+
+- View scheduled notifications.
+- View sent notifications.
+- View failed notifications.
+- Identify the recipient.
+- Identify the notification channel.
+- View delivery attempts.
+- View failure reasons.
+- Retry eligible failed notifications.
+
+Retrying a notification must not create duplicate logical reminders.
+
+### 15.15 Business Settings
+
+The dashboard must support configurable business settings.
+
+Examples:
+
+- Business contact information.
+- WhatsApp number.
+- Email address.
+- Payment instructions.
+- M-Pesa receiving information.
+- Session duration.
+- Booking restrictions.
+- Package validity.
+- Cancellation policy.
+- Working schedule.
+- Supported modalities.
+
+Changes to critical settings must be authorized and recorded in the audit log.
+
+### 15.16 Administrative History
+
+The dashboard must provide access to relevant administrative activity.
+
+Examples:
+
+- Payment confirmations.
+- Payment rejections.
+- Reservation cancellations.
+- Administrative reservation changes.
+- Session completion.
+- Availability changes.
+- Offer modifications.
+- Permission changes.
+
+Audit records must be protected against unauthorized modification or deletion.
+
+### 15.17 Dashboard User Experience
+
+The dashboard must follow these principles:
+
+- Clean and professional interface.
+- Clear navigation.
+- Minimal unnecessary text.
+- Consistent components.
+- Easy-to-understand status indicators.
+- Responsive layouts.
+- Touch-friendly controls.
+- Clear confirmation before sensitive actions.
+- Loading, success and error feedback.
+
+The dashboard must be practical to use on an iPhone without requiring a desktop computer.
+
+### 15.18 Dashboard Security
+
+All dashboard operations must enforce:
+
+- Server-side authorization.
+- Administrative role verification.
+- RLS.
+- Input validation.
+- Secure file access.
+- Audit logging.
+- Protection against unauthorized modifications.
+
+Hiding an interface button must never be considered sufficient authorization.
+
+### 15.19 Dashboard Testing
+
+Before launch, test:
+
+- Administrator login.
+- Unauthorized access prevention.
+- Reservation management.
+- Payment confirmation and rejection.
+- Package management.
+- Session completion.
+- Availability changes.
+- Conflict detection.
+- Calendar accuracy.
+- Review moderation.
+- Institutional request management.
+- Notification visibility.
+- Audit history.
+- Mobile usability.
+
+### 15.20 Implementation Rule
+
+The administrative dashboard must provide Farah with the tools necessary to operate the business securely and independently.
+
+All business-critical operations must remain consistent with the approved database, backend and security architecture.
+
 ## 16. External Integrations
 
 ## 17. Privacy and Data Protection
