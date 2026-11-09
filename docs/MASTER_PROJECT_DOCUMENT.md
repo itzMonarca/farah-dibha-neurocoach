@@ -3444,6 +3444,22 @@ The system must prevent:
 
 The implementation must use appropriate database constraints, transactions, locking and idempotency mechanisms.
 
+Additional concurrency and transaction integrity rules:
+
+- Slot allocation must use database-level locking or equivalent concurrency-safe mechanisms.
+- Two concurrent requests must never successfully allocate overlapping session slots.
+- Concurrent requests using the same verified client phone number must not bypass the individual reservation restriction.
+- Package allocation must lock and validate every requested slot within one transaction.
+- Rescheduling must secure the new slot before releasing the original slot.
+- If rescheduling fails at any stage, the original reservation and slot must remain unchanged.
+- Concurrent rescheduling requests for the same session must not overwrite each other.
+- Payment confirmation and reservation expiration must use mutually exclusive transactional state transitions.
+- A payment confirmation received after the payment deadline must not reactivate an expired reservation.
+- Repeated requests must use idempotency keys to prevent duplicate reservations, payments or other critical records.
+- All critical state transitions must verify the current database state before applying changes.
+- Transaction failures must roll back all related changes, including slot allocation, reservation records, payment records and notification scheduling.
+- Locks must be acquired and released safely to prevent deadlocks and permanently blocked reservations.
+
 ### 13.7 Reservation Expiration
 
 A scheduled backend process must identify unpaid reservations whose payment deadlines have passed.
