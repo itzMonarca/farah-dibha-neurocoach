@@ -5507,3 +5507,284 @@ Development and production environments must remain separate.
 The official website must only be launched after the required functionality, security and operational checks have passed.
 
 ## 20. Pending Decisions
+
+### 20.1 Purpose
+
+This section contains all unresolved business, technical, operational and legal decisions required before implementation and production launch.
+
+No pending decision must be silently assumed or treated as confirmed.
+
+Each decision must be reviewed, documented and updated when confirmed.
+
+### 20.2 Business Information
+
+The following information must be confirmed by Farah:
+
+- Final list of services offered.
+- Official names and descriptions of each service.
+- Scope and meaning of the service currently referred to as "Terapia Neurocientífica".
+- Professional qualifications and certifications to display.
+- Final professional biography.
+- Exact in-person consultation location.
+- Final working days and hours.
+- Whether different working schedules apply to online and in-person sessions.
+- Break periods and unavailable days.
+- Final business contact information.
+- Final cancellation and no-show policy.
+- Policy for late arrivals.
+- Whether clients may receive exceptions in exceptional circumstances.
+
+### 20.3 Individual Session Decisions
+
+The following details must be confirmed:
+
+- Individual session duration remains 60 minutes unless Farah approves a change.
+- Individual session price is 1,850 MZN.
+- Online and in-person modalities must be confirmed.
+- Online sessions use WhatsApp video calls.
+- Final in-person location must be confirmed.
+
+The following booking rules are already approved and must not be changed without explicit authorization:
+
+- Minimum booking notice: 3 days.
+- Payment deadline: 24 hours.
+- Manual payment confirmation by Farah.
+- One active individual reservation per client until the previous individual session is completed.
+- Cancellation and rescheduling permitted only until 24 hours before the session.
+- Rescheduling does not require manual approval from Farah.
+- Three reminders: 24 hours, 1 hour and exact session start time.
+
+### 20.4 Package Decisions
+
+Confirmed package configuration:
+
+- Essential: 4 sessions, 6,800 MZN.
+- Transformation: 8 sessions, 12,950 MZN.
+- Evolution: 12 sessions, 18,500 MZN.
+
+Confirmed package rules:
+
+- All session dates and times must be selected in one operation.
+- Every session must be scheduled at least 7 days ahead.
+- Every session must be scheduled no more than 1 month ahead.
+- Payment deadline: 96 hours.
+- All package sessions must be allocated atomically.
+- All package sessions must expire and release their slots together if payment is not confirmed within 96 hours.
+- Each child session is managed independently after package confirmation.
+- Only completed sessions count as consumed.
+- Each package session receives three reminders for both Farah and the client.
+
+Pending decisions:
+
+- Exact validity period for each package.
+- Whether package validity begins on purchase, payment confirmation or the first session.
+- What happens when package validity expires with unused sessions.
+- Whether validity can be extended.
+- Whether an active individual reservation and an active package may coexist for the same client.
+- Whether a client may purchase multiple active packages.
+- Whether package sessions may be cancelled individually.
+- Package cancellation and refund policy.
+- What happens when a client repeatedly misses package sessions.
+
+### 20.5 Payment Decisions
+
+Confirmed:
+
+- Initial payment method: M-Pesa.
+- Payment verification: manual by Farah.
+- Individual payment deadline: 24 hours.
+- Package payment deadline: 96 hours.
+- Payment proof submission does not automatically confirm payment or extend the deadline.
+
+Pending decisions:
+
+- Official M-Pesa receiving number.
+- Exact payment instructions.
+- Name displayed to the client as the payment recipient.
+- Whether clients must include a transaction reference.
+- Accepted proof file size limit.
+- Whether a replacement proof may be submitted after rejection.
+- Whether payment reminders will be sent.
+- Exact payment reminder schedule.
+- Refund policy.
+- Handling of overpayments and underpayments.
+- Future Volet payment integration requirements.
+
+### 20.6 OTP and Reservation Recovery Decisions
+
+The technical security requirements are defined in Sections 8 and 11.
+
+The following implementation parameters remain pending:
+
+- SMS provider.
+- OTP expiration duration.
+- Maximum verification attempts.
+- Resend cooldown.
+- Maximum OTP requests within a defined period.
+- OTP message format.
+- Recovery flow for clients who change phone numbers.
+- Additional protection against automated abuse.
+
+### 20.7 Notification Decisions
+
+Confirmed reminder schedule:
+
+- 24 hours before each confirmed session.
+- 1 hour before each confirmed session.
+- Exactly at the scheduled session start time.
+
+Both the client and Farah must receive these reminders.
+
+Pending decisions:
+
+- SMS provider.
+- Email delivery provider.
+- WhatsApp Business integration.
+- Default notification channels.
+- Client notification channel preferences.
+- Payment reminder schedule.
+- Retry limits.
+- Retry intervals.
+- Delivery failure escalation.
+- Notification templates and final message wording.
+
+### 20.8 External Integration Decisions
+
+The following integrations require further evaluation:
+
+- Official M-Pesa API.
+- Volet API.
+- SMS provider.
+- WhatsApp Business Platform.
+- Email delivery provider.
+
+Each provider must be evaluated for:
+
+- Availability in Mozambique.
+- Technical documentation.
+- Pricing.
+- API limits.
+- Security.
+- Reliability.
+- Account requirements.
+
+No integration must be implemented based on unverified assumptions.
+
+### 20.9 Privacy and Legal Decisions
+
+The following items must be reviewed before launch:
+
+- Final privacy policy.
+- Terms of service.
+- Client consent wording.
+- Review publication consent.
+- Consent for photographs and videos.
+- Data retention periods.
+- Data deletion procedures.
+- Client data correction procedures.
+- Applicable Mozambican legal requirements.
+- External provider data processing arrangements.
+
+Professional qualifications and service descriptions must be verified to avoid misleading claims.
+
+### 20.10 Technical Decisions
+
+The following technical details must be evaluated before implementation:
+
+- Final database schema.
+- Final table relationships.
+- Exact database constraints.
+- Atomic reservation allocation strategy.
+- Double-booking prevention mechanism.
+- Idempotency implementation.
+- RLS policies.
+- Database permissions.
+- Backend function boundaries.
+- Notification scheduling mechanism.
+- Scheduled job monitoring.
+- Error logging and alerting.
+- Backup and recovery strategy.
+- Automated testing tools.
+
+All technical decisions must remain consistent with the approved business rules.
+
+### 20.11 Hosting and Deployment Decisions
+
+Pending:
+
+- Official production Supabase project.
+- Production Vercel configuration.
+- Official website domain.
+- Production hosting plan.
+- Supabase production plan.
+- Backup configuration.
+- Monitoring tools.
+- Production environment credentials.
+
+The development project must remain separate from production.
+
+### 20.12 Outstanding Business Rules
+
+The following situations require explicit policy decisions:
+
+- Client books an individual session while holding an active package.
+- Client purchases a second package before completing the first.
+- Client requests cancellation of one package session.
+- Package expires with unused sessions.
+- Client arrives late.
+- Client misses a session.
+- Farah needs to cancel or reschedule a confirmed session.
+- Payment is made but cannot be verified before the deadline.
+- Notification delivery repeatedly fails.
+- A temporary availability block conflicts with existing reservations.
+
+These decisions must be documented before the relevant functionality is implemented.
+
+### 20.13 Decision Tracking
+
+Every pending decision must be tracked using the following statuses:
+
+- Pending: not yet decided.
+- Under Review: being evaluated.
+- Confirmed: explicitly approved.
+- Implemented: implemented and tested.
+
+A decision must only be marked Confirmed after the appropriate business or technical validation.
+
+### 20.14 Final Pre-Implementation Review
+
+Before writing production code, the project must undergo a complete review of:
+
+1. Business requirements.
+2. Individual reservation rules.
+3. Package reservation rules.
+4. Payment workflows.
+5. Availability management.
+6. Notification schedules.
+7. Authentication and security.
+8. Database architecture.
+9. Backend architecture.
+10. Frontend architecture.
+11. Administrative dashboard.
+12. External integrations.
+13. Privacy and data protection.
+14. Testing strategy.
+15. Deployment architecture.
+
+All critical business rules must be consistent across the complete document.
+
+### 20.15 Final Implementation Authorization
+
+Production implementation must not begin until:
+
+- The master project document has been reviewed.
+- Critical business decisions have been confirmed.
+- The database schema has been finalized.
+- Security architecture has been reviewed.
+- Critical backend transactions have been designed.
+- Required external integrations have been evaluated.
+- Development and production environments have been planned.
+
+The master project document is the primary reference for all implementation decisions.
+
+Any future change to an approved business rule must be documented before implementation.
