@@ -2989,6 +2989,21 @@ The parent reservation must control the overall package payment and expiration l
 
 Each child session must maintain its own scheduling, completion, rescheduling and reminder information.
 
+Parent and child session integrity:
+
+- Every reservation_session must belong to exactly one parent reservation.
+- A reservation_session must never exist without a valid parent reservation.
+- Individual session reservations must contain exactly one child session.
+- Essential package reservations must contain exactly four child sessions.
+- Transformation package reservations must contain exactly eight child sessions.
+- Evolution package reservations must contain exactly twelve child sessions.
+- The database must prevent package reservations from being confirmed with an incorrect number of child sessions.
+- All child sessions must belong to the same client as their parent reservation.
+- Child session status changes must not incorrectly modify the parent reservation status.
+- Completing one package session must not mark the entire package as completed.
+- Parent reservation expiration must apply consistently to all child sessions according to the package expiration rules.
+- These integrity rules must be enforced server-side and, where possible, through database constraints or transactional database functions.
+
 ### 12.13 Concurrency and Double-Booking Protection
 
 The database must prevent two active reservations from occupying overlapping time intervals.
