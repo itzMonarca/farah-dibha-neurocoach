@@ -3232,6 +3232,18 @@ The backend must manage:
 - Administrative operations.
 - Audit logging.
 
+Additional backend responsibilities:
+
+- Package validity management and expiration.
+- Special working-hour requests and approval workflows.
+- Availability rules, temporary overrides and availability blocks.
+- Payment deadline reminders and payment verification notifications.
+- Notification delivery attempts, retries and failure handling.
+- Secure reservation recovery sessions after OTP verification.
+- Client review submission and eligibility validation.
+- Administrative action tracking and critical event auditing.
+- Role-based authorization and access control.
+
 ### 13.3 Backend Architecture Layers
 
 The system must separate responsibilities into the following layers.
